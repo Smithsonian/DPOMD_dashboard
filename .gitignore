@@ -1,15 +1,7 @@
 data
 
 .Rhistory
-settings.R
 
 .Rproj*
 *.Rproj
-
-www/*.png
-
-!www/ajax-loader.gif
-!www/dpologo.jpg
-
-*.sqlite
-*.sqlite3
+.Rproj.user

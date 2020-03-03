@@ -1,9 +1,7 @@
 #Load packages ----
 library(shiny)
 library(dplyr)
-library(DBI)
 library(shinyWidgets)
-library(EDANr)
 library(DT)
 
 
@@ -12,27 +10,27 @@ library(DT)
 options(scipen=999)
 
 app_name <- "Mass Digitization Dashboard"
-app_ver <- "1.3.3"
+app_ver <- "1.4.0"
 github_link <- "https://github.com/Smithsonian/DPOMD_dashboard/"
 
-#Load settings
-#source("settings.R")
+
+#Load data tables
+load("data/data.RData")
 
 
 # UI ----
 ui <- fluidPage(
   
   tags$head(
-    tags$title(app_name),
-    tags$style(HTML("
-      .loading {
-          background: transparent url('ajax-loader.gif') center no-repeat;
-          min-height: 100px;
-          min-width: 70px;
-        }
-    "))
+    tags$title(app_name)#,
+    # tags$style(HTML("
+    #   .loading {
+    #       background: transparent url('ajax-loader.gif') center no-repeat;
+    #       min-height: 100px;
+    #       min-width: 70px;
+    #     }
+    # "))
   ),
-  
   
   HTML(paste0("<h1><a href=\"http://dpo.si.edu\" target = _blank><img src=\"dpologo.jpg\"></a> | ", app_name, "</h1>")),
     tabsetPanel(type = "tabs",
@@ -179,11 +177,6 @@ ui <- fluidPage(
 # Server ----
 server <- function(input, output, session) {
 
-  #Local SQLite database for performance/isolation
-  database_file <- "localdb.sqlite3"
-  db <- dbConnect(RSQLite::SQLite(), database_file)
-  
-  proj_data <- dbGetQuery(db, "SELECT p.project_acronym, p.project_area, coalesce(sum(ps.objects_digitized), 0) as objects_digitized, coalesce(sum(ps.images_taken), 0) as images_taken, p.project_status FROM projects p LEFT JOIN projects_stats ps ON p.project_id = ps.project_id GROUP BY p.project_acronym, p.project_area, p.project_status")
   
   #topsummary1----
   output$topsummary1 <- renderUI({
@@ -231,36 +224,6 @@ server <- function(input, output, session) {
   #list of projects----
   output$projects <- DT::renderDataTable({
     
-    projects_list <- dbGetQuery(db, "SELECT 
-    p.project_id, 
-    p.project_unit, 
-    p.project_title, 
-    p.project_acronym, 
-    p.project_status, 
-    p.project_description, 
-    p.project_method, 
-    p.project_manager, 
-    p.project_url, 
-    p.project_start, 
-    p.project_end, 
-    p.projects_order,
-    p.updated_at,  
-    p.project_type,
-    ps.collex_to_digitize,
-    coalesce(SUM(ps.objects_digitized), 0) as objects_digitized, 
-    p.images_estimated,
-    p.objects_estimated,
-    coalesce(SUM(ps.images_taken), 0) as images_taken                                 
-
-FROM projects p 
-    LEFT JOIN projects_stats ps 
-        ON p.project_id = ps.project_id 
-
-
-GROUP BY p.project_id, p.project_title, p.project_unit, p.project_acronym, p.project_status, p.project_description, p.project_method, p.project_manager, p.project_url, p.project_start, p.project_end, p.updated_at, p.projects_order, p.project_type, ps.collex_to_digitize, p.images_estimated, p.objects_estimated
-    ORDER BY p.projects_order DESC")
-    
-    
     for (p in seq(1, dim(projects_list)[1])){
       if (projects_list$objects_estimated[p] == 1){
         projects_list$objects_digitized[p] <- paste0(prettyNum(as.integer(projects_list$objects_digitized[p]), big.mark = ",", scientific=FALSE), " *")
@@ -274,9 +237,9 @@ GROUP BY p.project_id, p.project_title, p.project_unit, p.project_acronym, p.pro
         projects_list$images_taken[p] <- prettyNum(as.integer(projects_list$images_taken[p]), big.mark = ",", scientific=FALSE)
       }
       
-      if (is.na(projects_list$project_end[p])){
-        projects_list$project_end[p] <- ""
-      }
+      # if (is.na(projects_list$project_end[p])){
+      #   projects_list$project_end[p] <- ""
+      # }
       
       projects_list$collex_to_digitize[p] <- prettyNum(as.integer(projects_list$collex_to_digitize[p]), big.mark = ",", scientific=FALSE)
       
@@ -325,7 +288,7 @@ GROUP BY p.project_id, p.project_title, p.project_unit, p.project_acronym, p.pro
     
     selected_project_title <- projects_list_tbl[input$projects_rows_selected,]$'Title'
     
-    proj_info <- dbGetQuery(db, paste0("SELECT p.project_id, p.project_title, p.project_type, p.project_unit, p.project_acronym, p.project_status, p.project_description, p.project_method, p.project_manager, p.project_url, p.project_area, p.project_start, p.project_end, p.process_summary, p.filecheck_link, sum(ps.objects_digitized) as objects_digitized FROM projects p LEFT JOIN projects_stats ps ON p.project_id = ps.project_id WHERE p.project_title = '", selected_project_title, "' GROUP BY p.project_title, p.project_type, p.project_unit, p.project_acronym, p.project_status, p.project_description, p.project_method, p.project_manager, p.project_url, p.project_area, p.project_start, p.project_end, p.filecheck_link, p.process_summary"))
+    proj_info <- projects_info[projects_info$project_title == selected_project_title,]
     
     if (!is.na(proj_info$filecheck_link)){
       fc_link <- paste0("<dt>Production Dashboard</dt><dd>", a(href = proj_info$filecheck_link, target = "_blank", "Link") ,"</dd>")
@@ -365,7 +328,7 @@ GROUP BY p.project_id, p.project_title, p.project_unit, p.project_acronym, p.pro
       media_links <- paste0(media_links, "<hr>")
     }
     
-    unit <- dbGetQuery(db, paste0("SELECT * FROM projects_units WHERE unit = '", proj_info$project_unit, "'"))
+    unit <- projects_units[projects_units$project_unit == proj_info$project_unit, ]
     
     showModal(modalDialog(
       size = "l",
@@ -592,7 +555,7 @@ GROUP BY p.project_id, p.project_title, p.project_unit, p.project_acronym, p.pro
    
   #projects_stats----
   output$projects_stats <- renderUI({
-    projects <- dbGetQuery(db, "SELECT process_summary, project_unit || ' - ' || project_title as project_title from projects WHERE process_summary IS NOT NULL ORDER BY project_status DESC, project_start DESC")
+    projects <- projects_daily
     
     choices = setNames(projects$process_summary, projects$project_title)
     selectInput("process_summary", "Project:",  choices, width = "100%")
@@ -601,7 +564,7 @@ GROUP BY p.project_id, p.project_title, p.project_unit, p.project_acronym, p.pro
   
   #projects_stats2----
   output$projects_stats2 <- renderUI({
-    projects <- dbGetQuery(db, "SELECT project_id, project_unit || ' - ' || project_title as project_title from projects WHERE process_summary IS NOT NULL ORDER BY project_status DESC, project_start DESC")
+    projects <- projects_daily
     
     choices = setNames(projects$project_id, projects$project_title)
     selectInput("process_summary2", "Project:",  choices, width = "100%")
@@ -612,11 +575,9 @@ GROUP BY p.project_id, p.project_title, p.project_unit, p.project_acronym, p.pro
   output$stats <- renderUI({
     req(input$process_summary)
     
-    proj <- dbGetQuery(db, paste0("SELECT * from projects where process_summary = '", input$process_summary, "'"))
+    proj_info <- proj_stats[proj_stats$process_summary == input$process_summary, ]
     
-    proj_info <- dbGetQuery(db, paste0("SELECT p.project_title, p.project_type, p.project_unit, p.project_status, p.project_description, p.project_start, p.project_end, sum(ps.objects_digitized) as objects_digitized FROM projects p LEFT JOIN projects_stats ps ON p.project_id = ps.project_id WHERE p.project_id = ", proj$project_id, " GROUP BY p.project_title, p.project_type, p.project_unit, p.project_status, p.project_description, p.project_start, p.project_end"))
-    
-    project_size <- dbGetQuery(db, paste0("SELECT avg_file_size, total_file_size, avg_rawfile_size, total_rawfile_size FROM projects_stats WHERE project_id = ", proj$project_id))
+    project_size <- projects_size[projects_size$project_id == proj$project_id, ]
     
     if (!is.na(proj_info$project_end)){
       project_end <- proj_info$project_end
@@ -640,61 +601,61 @@ GROUP BY p.project_id, p.project_title, p.project_unit, p.project_acronym, p.pro
     
   
   #stats_all ----
-  output$stats_all <- renderUI({
-    req(input$process_summary)
-      tagList(
-        h4("Number of days between steps post capture of the images:"),
-        tags$img(src = paste0(input$process_summary, ".png"), width = 600, height = "auto"),
-        br()
-      )
-  })
+  # output$stats_all <- renderUI({
+  #   req(input$process_summary)
+  #     tagList(
+  #       h4("Number of days between steps post capture of the images:"),
+  #       tags$img(src = paste0(input$process_summary, ".png"), width = 600, height = "auto"),
+  #       br()
+  #     )
+  # })
   
   #stats1 ----
-  output$stats1 <- renderUI({
-    req(input$process_summary)
-    tagList(
-      h4("Days between capture of the images and VFCU completed by month:"),
-      tags$img(src = paste0(input$process_summary, "_1.png"), width = 600, height = "auto"),
-      br()
-    )
-  })
+  # output$stats1 <- renderUI({
+  #   req(input$process_summary)
+  #   tagList(
+  #     h4("Days between capture of the images and VFCU completed by month:"),
+  #     tags$img(src = paste0(input$process_summary, "_1.png"), width = 600, height = "auto"),
+  #     br()
+  #   )
+  # })
   
   #stats2 ----
-  output$stats2 <- renderUI({
-    req(input$process_summary)
-    tagList(
-      h4("Days between capture of the images and ingest into DAMS by month:"),
-      tags$img(src = paste0(input$process_summary, "_2.png"), width = 600, height = "auto"),
-      br()
-    )
-  })
+  # output$stats2 <- renderUI({
+  #   req(input$process_summary)
+  #   tagList(
+  #     h4("Days between capture of the images and ingest into DAMS by month:"),
+  #     tags$img(src = paste0(input$process_summary, "_2.png"), width = 600, height = "auto"),
+  #     br()
+  #   )
+  # })
   
   #stats3 ----
-  output$stats3 <- renderUI({
-    req(input$process_summary)
-    tagList(
-      h4("Days between capture of the images and data connect to CIS by month:"),
-      tags$img(src = paste0(input$process_summary, "_3.png"), width = 600, height = "auto"),
-      br()
-    )
-  })
+  # output$stats3 <- renderUI({
+  #   req(input$process_summary)
+  #   tagList(
+  #     h4("Days between capture of the images and data connect to CIS by month:"),
+  #     tags$img(src = paste0(input$process_summary, "_3.png"), width = 600, height = "auto"),
+  #     br()
+  #   )
+  # })
   
   #stats4 ----
-  output$stats4 <- renderUI({
-    req(input$process_summary)
-    tagList(
-      h4("Days between capture of the images and metadata sync to EDAN by month:"),
-      tags$img(src = paste0(input$process_summary, "_4.png"), width = 600, height = "auto"),
-      br()
-    )
-  })
+  # output$stats4 <- renderUI({
+  #   req(input$process_summary)
+  #   tagList(
+  #     h4("Days between capture of the images and metadata sync to EDAN by month:"),
+  #     tags$img(src = paste0(input$process_summary, "_4.png"), width = 600, height = "auto"),
+  #     br()
+  #   )
+  # })
 
   
   
   
   output$stats_daily_header <- renderUI({
     req(input$process_summary2)
-    proj <- dbGetQuery(db, paste0("SELECT project_title, project_unit FROM projects WHERE project_id = '", input$process_summary2, "'"))
+    proj <- projects[projects$project_id == input$process_summary2, ]
     
     h3(paste0("Detail statistics of the project: ", proj$project_title, " (", proj$project_unit, ")"))
   })
@@ -704,15 +665,17 @@ GROUP BY p.project_id, p.project_title, p.project_unit, p.project_acronym, p.pro
   #stats_daily----
   output$stats_daily <- DT::renderDataTable({
     req(input$process_summary2)
-    daily_data <- dbGetQuery(db, paste0("SELECT date_f as Date, date AS date_sort, objects_digitized as 'Objects Digitized', images_captured AS 'Images Captured' FROM projects_stats_detail WHERE time_interval = 'daily' AND project_id = ", input$process_summary2, " ORDER BY date_sort DESC"))
+    proj <- projects[projects$project_id == input$process_summary2, ]
     
-    daily_data$`Images Captured` <- prettyNum(daily_data$`Images Captured`, big.mark = ",", scientific=FALSE)
+    daily_data <- projects_daily_data[projects_daily_data$project_id == input$process_summary2, ]
     
-    daily_data$`Objects Digitized` <- prettyNum(daily_data$`Objects Digitized`, big.mark = ",", scientific=FALSE)
+    daily_data$`Images Captured` <- prettyNum(daily_data$images_captured, big.mark = ",", scientific=FALSE)
+    
+    daily_data$`Objects Digitized` <- prettyNum(daily_data$objects_digitized, big.mark = ",", scientific=FALSE)
     
     daily_data <- select(daily_data, -date_sort)
-    
-    #daily_data <- select(daily_data, -"Objects Digitized")
+    daily_data <- select(daily_data, -images_captured)
+    daily_data <- select(daily_data, -objects_digitized)
     
       DT::datatable(
         daily_data,
@@ -739,13 +702,16 @@ GROUP BY p.project_id, p.project_title, p.project_unit, p.project_acronym, p.pro
   output$stats_monthly <- DT::renderDataTable({
     req(input$process_summary2)
     
-    daily_data <- dbGetQuery(db, paste0("select date AS Month, objects_digitized as 'Objects Digitized', images_captured as 'Images Captured' from projects_stats_detail psd where project_id = ", input$process_summary2, " and time_interval ='monthly' ORDER BY date DESC"))
+    daily_data <- projects_monthly_data[projects_monthly_data$project_id == input$process_summary2, ]
+      
+    daily_data$`Images Captured` <- prettyNum(daily_data$images_captured, big.mark = ",", scientific=FALSE)
     
-    daily_data$`Images Captured` <- prettyNum(daily_data$`Images Captured`, big.mark = ",", scientific=FALSE)
+    daily_data$`Objects Digitized` <- prettyNum(daily_data$objects_digitized, big.mark = ",", scientific=FALSE)
     
-    daily_data$`Objects Digitized` <- prettyNum(daily_data$`Objects Digitized`, big.mark = ",", scientific=FALSE)
-    
-    daily_data$`Month` <- months(as.Date(daily_data$`Month`))
+    daily_data <- select(daily_data, -date_sort) %>% 
+      select(-images_captured) %>% 
+      select(-objects_digitized) %>% 
+      select(-project_id)
     
     DT::datatable(
       daily_data,
@@ -770,35 +736,31 @@ GROUP BY p.project_id, p.project_title, p.project_unit, p.project_acronym, p.pro
    
   
   #stats_daily_fig----
-  output$stats_daily_fig <- DT::renderDataTable({
-    req(input$process_summary2)
-    tagList(
-      h4("Days between capture of the images and VFCU completed by month:"),
-      tags$img(src = paste0(input$process_summary2, "_day.png"), width = 600, height = "auto"),
-      br()
-    )
-  })
+  # output$stats_daily_fig <- DT::renderDataTable({
+  #   req(input$process_summary2)
+  #   tagList(
+  #     h4("Days between capture of the images and VFCU completed by month:"),
+  #     tags$img(src = paste0(input$process_summary2, "_day.png"), width = 600, height = "auto"),
+  #     br()
+  #   )
+  # })
   
   
   
   #stats_monthly_fig----
-  output$stats_monthly_fig <- DT::renderDataTable({
-    req(input$process_summary)
-    tagList(
-      h4("Days between capture of the images and VFCU completed by month:"),
-      tags$img(src = paste0(input$process_summary, "_month.png"), width = 600, height = "auto"),
-      br()
-    )
-  })
+  # output$stats_monthly_fig <- DT::renderDataTable({
+  #   req(input$process_summary)
+  #   tagList(
+  #     h4("Days between capture of the images and VFCU completed by month:"),
+  #     tags$img(src = paste0(input$process_summary, "_month.png"), width = 600, height = "auto"),
+  #     br()
+  #   )
+  # })
   
   
   
   #footer ----
   output$footer <- renderUI({
-    last_date <- dbGetQuery(db, "SELECT max(updated_at) as updated_at FROM projects_stats")
-    
-    last_date <- format(as.Date(last_date$updated_at), "%d %b %Y")
-    
     HTML(paste0("<div class=\"footer navbar-fixed-bottom\" style=\"background: #C6C6C6; padding-top: 10px;\"><p>&nbsp;&nbsp;", app_name, ", ver. ", app_ver, " | <a href=\"", github_link, "\" target = _blank>Source code</a> | Data updated on: ", last_date, "</p></div>"))
   })
 }
@@ -810,9 +772,5 @@ shinyApp(ui = ui, server = server, onStart = function() {
   #Load project ----
   onStop(function() {
     cat("Closing\n")
-    #Close databases ----
-    try(dbDisconnect(db), silent = TRUE)
-    cat("Removing objects\n")
-    rm(list = ls())
   })
 })
