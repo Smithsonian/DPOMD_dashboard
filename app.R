@@ -177,7 +177,6 @@ ui <- fluidPage(
 # Server ----
 server <- function(input, output, session) {
 
-  
   #topsummary1----
   output$topsummary1 <- renderUI({
     tagList(
@@ -187,8 +186,6 @@ server <- function(input, output, session) {
       HTML("</div>")
     )
   })
-  
-  proj_data_ongoing <- dplyr::filter(proj_data, project_status == "Ongoing")
   
   #topsummary2----
   output$topsummary2 <- renderUI({
@@ -224,43 +221,6 @@ server <- function(input, output, session) {
   #list of projects----
   output$projects <- DT::renderDataTable({
     
-    for (p in seq(1, dim(projects_list)[1])){
-      if (projects_list$objects_estimated[p] == 1){
-        projects_list$objects_digitized[p] <- paste0(prettyNum(as.integer(projects_list$objects_digitized[p]), big.mark = ",", scientific=FALSE), " *")
-      }else{
-        projects_list$objects_digitized[p] <- prettyNum(as.integer(projects_list$objects_digitized[p]), big.mark = ",", scientific=FALSE)
-      }
-      
-      if (projects_list$images_estimated[p] == 1){
-        projects_list$images_taken[p] <- paste0(prettyNum(as.integer(projects_list$images_taken[p]), big.mark = ",", scientific=FALSE), " *")
-      }else{
-        projects_list$images_taken[p] <- prettyNum(as.integer(projects_list$images_taken[p]), big.mark = ",", scientific=FALSE)
-      }
-      
-      # if (is.na(projects_list$project_end[p])){
-      #   projects_list$project_end[p] <- ""
-      # }
-      
-      projects_list$collex_to_digitize[p] <- prettyNum(as.integer(projects_list$collex_to_digitize[p]), big.mark = ",", scientific=FALSE)
-      
-    }
-    
-    projects_list$dates <- paste0(projects_list$project_start, " - ", projects_list$project_end)
-    
-    projects_list <<- projects_list
-    
-    projects_list_tbl <<- projects_list %>% dplyr::select(-c(project_id, project_url, updated_at, project_acronym, project_method, project_start, project_end, project_description, projects_order, project_type, images_estimated, objects_estimated, project_manager)) %>% 
-      dplyr::rename(Unit = project_unit) %>% 
-      dplyr::rename(Title = project_title) %>% 
-      dplyr::rename(Status = project_status) %>% 
-      dplyr::rename("Specimens Digitized" = objects_digitized) %>%
-      dplyr::rename("Images Captured" = images_taken) %>%
-      dplyr::rename(Dates = dates) %>% 
-      dplyr::rename("Project Goal" = collex_to_digitize) # %>% 
-      #dplyr::rename("Project Manager" = project_manager) %>% 
-      #dplyr::mutate(Funding = 'Coming soon')
-      
-    
     DT::datatable(
       projects_list_tbl,
       escape = FALSE, 
@@ -269,7 +229,10 @@ server <- function(input, output, session) {
         ordering = TRUE, 
         paging = TRUE,
         pageLength = dim(projects_list_tbl)[1],
-        dom = 't'
+        dom = 't',
+        #Pull these cols to the right
+        columnDefs = list(list(
+          className = 'dt-right', targets = c(4, 5)))
       ),
       rownames = FALSE, 
       selection = 'single',
@@ -313,6 +276,7 @@ server <- function(input, output, session) {
     }
     
     proj_media <- projects_media[projects_media$project_id == proj_info$project_id, ]
+    #proj_budget <- projects_budget[projects_budget$project_id == proj_info$project_id, ]
     
     media_links <- ""
     
@@ -331,6 +295,22 @@ server <- function(input, output, session) {
     print(projects_units)
     unit <- projects_units[projects_units$unit == proj_info$project_unit, ]
     
+    objects_percent <- round((proj_info$objects_digitized / proj_info$collex_to_digitize) * 100, 2)
+    
+    b_info <- ""
+    
+    # if (dim(proj_budget)[1] > 0){
+    #   
+    #   b_info <- paste0("Total: $ ", prettyNum(sum(proj_budget$budget_amount), big.mark = ",", scientific=FALSE), "<br><ul>")
+    #   
+    #   for (b in seq(1, dim(proj_budget)[1])){
+    #     b_info <- paste0(b_info, "<li>", proj_budget$budget_source[b], ": ", proj_budget$budget[b], "</li>")
+    #   }
+    #   b_info <- paste0(b_info, "</ul>")
+    # }else{
+    #   b_info = "NA"
+    # }
+    
     showModal(modalDialog(
       size = "l",
       title = "Project Info",
@@ -341,6 +321,9 @@ server <- function(input, output, session) {
       HTML(paste0("<dt>Unit</dt><dd><a href=\"", unit$unit_link, "\" target = _blank>", unit$unit_fullname, "</a> (", unit$unit, ")</dd>")),
       HTML(paste0("<dt>Project Type</dt><dd>", proj_info$project_type, "</dd>")),
       HTML(paste0("<dt>Status</dt><dd>", proj_info$project_status, "</dd>")),
+      HTML(paste0("<dt>Specimens Digitized</dt><dd>", prettyNum(proj_info$objects_digitized, big.mark = ",", scientific=FALSE), " (", objects_percent, " % of the Project Goal of ", prettyNum(proj_info$collex_to_digitize, big.mark = ",", scientific=FALSE), ")</dd>")),
+      HTML(paste0("<dt>Images Captured</dt><dd>", prettyNum(proj_info$images_taken, big.mark = ",", scientific=FALSE), "</dd>")),
+      #HTML(paste0("<dt>Budget Summary</dt><dd>", b_info, "</dd>")),
       HTML(paste0("<dt>Description</dt><dd>", proj_info$project_description, "</dd>")),
       HTML(paste0("<dt>Methods</dt><dd>", proj_info$project_method, "</dd>")),
       HTML(paste0("<dt>Project Manager</dt><dd>", proj_info$project_manager, "</dd>")),
@@ -556,18 +539,14 @@ server <- function(input, output, session) {
    
   #projects_stats----
   output$projects_stats <- renderUI({
-    projects <- projects_daily
-    
-    choices = setNames(projects$process_summary, projects$project_title)
+    choices = setNames(projects_daily$process_summary, projects_daily$project_title)
     selectInput("process_summary", "Project:",  choices, width = "100%")
   })
   
   
   #projects_stats2----
   output$projects_stats2 <- renderUI({
-    projects <- projects_daily
-    
-    choices = setNames(projects$project_id, projects$project_title)
+    choices = setNames(projects_daily$project_id, projects_daily$project_title)
     selectInput("process_summary2", "Project:",  choices, width = "100%")
   })
   
@@ -597,9 +576,6 @@ server <- function(input, output, session) {
       )
   })
   
-  
-  
-    
   
   #stats_all ----
   # output$stats_all <- renderUI({
