@@ -10,7 +10,7 @@ library(DT)
 options(scipen=999)
 
 app_name <- "Mass Digitization Dashboard"
-app_ver <- "1.4.0"
+app_ver <- "1.4.1"
 github_link <- "https://github.com/Smithsonian/DPOMD_dashboard/"
 
 
@@ -50,7 +50,7 @@ ui <- fluidPage(
                                   uiOutput("topsummary2")
                            )
                          ),
-
+                        #HTML("<div class=\"alert alert-warning\" role=\"alert\"><strong>Notice</strong>: The statistics in the dashboard will be updated less frequently during the period the museums are closed.</div>"),
                         h3("Digitization Projects"),
                         p("Click a project in the table below to see more details:"),
                         DT::dataTableOutput("projects"),
@@ -95,7 +95,7 @@ ui <- fluidPage(
                 tabPanel("Daily Statistics", 
                          br(),
                          fluidRow(
-                           column(width = 6,
+                           column(width = 5,
                                   HTML("<div class=\"panel panel-primary\">
                                                 <div class=\"panel-heading\">Select one project to display detailed statistics</div>
                                                 <div class=\"panel-body\">"),
@@ -105,17 +105,18 @@ ui <- fluidPage(
                          ),
                          uiOutput("stats_daily_header"),
                          fluidRow(
-                           column(width = 4,
+                           column(width = 6,
                                   h4("Images captured by day:"),
                                   DT::dataTableOutput("stats_daily")
                            ),
-                           column(width = 4,
+                           column(width = 6,
                                   h4("Images captured by month:"),
                                   DT::dataTableOutput("stats_monthly")
                            )
                          ),
                          br(),
                          br(),
+                         hr(),
                          tags$em("The data used to calculate statistics is courtesy of the DAMS team.")
                 ),
                 tabPanel("About/Help", 
@@ -646,13 +647,22 @@ server <- function(input, output, session) {
     
     daily_data <- projects_daily_data[projects_daily_data$project_id == input$process_summary2, ]
     
-    daily_data$`Images Captured` <- prettyNum(daily_data$images_captured, big.mark = ",", scientific=FALSE)
+    if (proj$images_estimated == 1){
+      daily_data$`Images Captured*` <- prettyNum(daily_data$images_captured, big.mark = ",", scientific=FALSE)
+    }else{
+      daily_data$`Images Captured` <- prettyNum(daily_data$images_captured, big.mark = ",", scientific=FALSE)
+    }
     
-    daily_data$`Objects Digitized` <- prettyNum(daily_data$objects_digitized, big.mark = ",", scientific=FALSE)
+    if (proj$objects_estimated == 1){
+      daily_data$`Objects Digitized*` <- prettyNum(daily_data$objects_digitized, big.mark = ",", scientific=FALSE)
+    }else{
+      daily_data$`Objects Digitized` <- prettyNum(daily_data$objects_digitized, big.mark = ",", scientific=FALSE)
+    }
     
-    daily_data <- select(daily_data, -date_sort)
-    daily_data <- select(daily_data, -images_captured)
-    daily_data <- select(daily_data, -objects_digitized)
+    daily_data <- select(daily_data, -date_sort) %>% 
+      select(-images_captured) %>% 
+      select(-objects_digitized) %>% 
+      select(-project_id)
     
       DT::datatable(
         daily_data,
@@ -669,6 +679,11 @@ server <- function(input, output, session) {
           pageLength = 30
         ),
         selection = 'none',
+        rownames = FALSE,
+        caption = htmltools::tags$caption(
+          style = 'caption-side: bottom; text-align: left;',
+          '* value was estimated'
+        ),
         class = "display"
       )
   }, server = FALSE)
@@ -678,12 +693,21 @@ server <- function(input, output, session) {
   #stats_monthly----
   output$stats_monthly <- DT::renderDataTable({
     req(input$process_summary2)
+    proj <- projects[projects$project_id == input$process_summary2, ]
     
     daily_data <- projects_monthly_data[projects_monthly_data$project_id == input$process_summary2, ]
-      
-    daily_data$`Images Captured` <- prettyNum(daily_data$images_captured, big.mark = ",", scientific=FALSE)
     
-    daily_data$`Objects Digitized` <- prettyNum(daily_data$objects_digitized, big.mark = ",", scientific=FALSE)
+    if (proj$images_estimated == 1){
+      daily_data$`Images Captured*` <- prettyNum(daily_data$images_captured, big.mark = ",", scientific=FALSE)
+    }else{
+      daily_data$`Images Captured` <- prettyNum(daily_data$images_captured, big.mark = ",", scientific=FALSE)
+    }
+    
+    if (proj$objects_estimated == 1){
+      daily_data$`Objects Digitized*` <- prettyNum(daily_data$objects_digitized, big.mark = ",", scientific=FALSE)
+    }else{
+      daily_data$`Objects Digitized` <- prettyNum(daily_data$objects_digitized, big.mark = ",", scientific=FALSE)
+    }
     
     daily_data <- select(daily_data, -date_sort) %>% 
       select(-images_captured) %>% 
@@ -705,6 +729,11 @@ server <- function(input, output, session) {
         pageLength = 12
       ),
       selection = 'none',
+      rownames = FALSE,
+      caption = htmltools::tags$caption(
+        style = 'caption-side: bottom; text-align: left;',
+        '* value was estimated'
+      ),
       class = "display"
     )
   }, server = FALSE)
