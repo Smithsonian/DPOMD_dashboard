@@ -293,7 +293,7 @@ server <- function(input, output, session) {
       media_links <- paste0(media_links, "<hr>")
     }
     
-    print(projects_units)
+    #print(projects_units)
     unit <- projects_units[projects_units$unit == proj_info$project_unit, ]
     
     objects_percent <- round((proj_info$objects_digitized / proj_info$collex_to_digitize) * 100, 2)
