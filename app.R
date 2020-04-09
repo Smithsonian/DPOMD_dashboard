@@ -10,7 +10,7 @@ library(DT)
 options(scipen=999)
 
 app_name <- "Mass Digitization Dashboard"
-app_ver <- "1.4.1"
+app_ver <- "1.4.2"
 github_link <- "https://github.com/Smithsonian/DPOMD_dashboard/"
 
 
@@ -50,44 +50,13 @@ ui <- fluidPage(
                                   uiOutput("topsummary2")
                            )
                          ),
-                        #HTML("<div class=\"alert alert-warning\" role=\"alert\"><strong>Notice</strong>: The statistics in the dashboard will be updated less frequently during the period the museums are closed.</div>"),
                         h3("Digitization Projects"),
                         p("Click a project in the table below to see more details:"),
                         DT::dataTableOutput("projects"),
                          
                         tags$em("Some of the data is courtesy of the DAMS team.")
                         ),
-                # tabPanel("Summary Statistics", 
-                #          br(),
-                #          fluidRow(
-                #            column(width = 6,
-                #                   HTML("<div class=\"panel panel-primary\">
-                #                                 <div class=\"panel-heading\">Select one project to display detailed statistics</div>
-                #                                 <div class=\"panel-body\">"),
-                #                   uiOutput("projects_stats"),
-                #                   HTML("</div></div>")
-                #            )
-                #          ),
-                #          fluidRow(
-                #            column(width = 6,
-                #                   uiOutput("stats")
-                #            ),
-                #            column(width = 6,
-                #                   uiOutput("stats_all")
-                #            )
-                #          ),
-                #          fluidRow(
-                #            column(width = 6,
-                #                   uiOutput("stats1"),
-                #                   uiOutput("stats3")
-                #            ),
-                #            column(width = 6,
-                #                   uiOutput("stats2"),
-                #                   uiOutput("stats4")
-                #            )
-                #          ),
-                #          tags$em("The data used to calculate statistics is courtesy of the DAMS team.")
-                # ),
+                
                 tabPanel("Progress in Select Projects",
                          br(),
                          tags$iframe(src="https://public.tableau.com/views/MDStats/Dashboard1?:showVizHome=no&:embed=true&:device=desktop", width="1140", height="1200", seamless = TRUE)
@@ -312,11 +281,45 @@ server <- function(input, output, session) {
     #   b_info = "NA"
     # }
     
+    #edan ----
+    edan_html <- ""
+    edan_images <- projects_edan[projects_edan$project_id == proj_info$project_id,]
+    
+    proj_edan_images <- sample_n(edan_images, 3, replace = FALSE)
+    
+    if (dim(proj_edan_images)[1] == 3){
+      
+      print(proj_edan_images)
+      
+      edan1 <- HTML(paste0("<a href=\"", proj_edan_images$link[1], "\" target = _blank><img class = \"loading\" src=\"", proj_edan_images$img_file[1], "\" style=\"max-height: 160px; width:auto;\"></a><p>", proj_edan_images$title[1], "<br>", proj_edan_images$credit[1], "|", proj_edan_images$notes[1], "</p>"))
+      
+      edan2 <- HTML(paste0("<a href=\"", proj_edan_images$link[2], "\" target = _blank><img class = \"loading\" src=\"", proj_edan_images$img_file[2], "\" style=\"max-height: 160px; width:auto;\"></a><p>", proj_edan_images$title[2], "<br>", proj_edan_images$credit[2], "|", proj_edan_images$notes[2], "</p>"))
+      
+      edan3 <- HTML(paste0("<a href=\"", proj_edan_images$link[3], "\" target = _blank><img class = \"loading\" src=\"", proj_edan_images$img_file[3], "\" style=\"max-height: 160px; width:auto;\"></a><p>", proj_edan_images$title[3], "<br>", proj_edan_images$credit[3], "|", proj_edan_images$notes[3], "</p>"))
+      
+      edan_html <- HTML(paste("<h4>Example images from the project:</h4>", tagList(
+        fluidRow(
+          column(width = 4,
+                 edan1
+          ),
+          column(width = 4,
+                 edan2
+          ),
+          column(width = 4,
+                 edan3
+          )
+        ),
+        hr()
+      )
+      ))
+    }
+    
+    
     showModal(modalDialog(
       size = "l",
       title = "Project Info",
       HTML(media_links),
-      
+      edan_html,
       HTML(paste0("<h4>Project details:</h4><dl class = \"dl-horizontal\"><dt>Project Title</dt><dd>", proj_info$project_title, "</dd>")),
       HTML(fc_link),
       HTML(paste0("<dt>Unit</dt><dd><a href=\"", unit$unit_link, "\" target = _blank>", unit$unit_fullname, "</a> (", unit$unit, ")</dd>")),
@@ -338,202 +341,6 @@ server <- function(input, output, session) {
   
   
   
-  #edan ----
-  output$edan <- renderUI({
-    req(FALSE)
-    #Rewrite, too slow
-    # req(input$projects_rows_selected)
-    # 
-    # selected_project_id <- projects_list[input$projects_rows_selected,]$project_id
-    # 
-    # query_edan <- dbGetQuery(db, paste0("SELECT * from projects_edan WHERE project_id = ", selected_project_id))
-    # 
-    # if (dim(query_edan)[1] > 0){
-    #   if (dim(query_edan)[1] > 2){
-    #     edan_examples <<- dplyr::sample_n(query_edan, 2, replace = FALSE)
-    #   }else{
-    #     edan_examples <<- query_edan
-    #   }
-    # }else{
-    #   req(FALSE)
-    # }
-    # 
-    # this_item_search <- EDANr::searchEDAN(q = edan_examples[1,]$edan_id, AppID = AppID, AppKey = AppKey)
-    # if (this_item_search$rowCount == 1){
-    #   edan_id <- this_item_search$rows$url
-    #   
-    #   this_item <- EDANr::getContentEDAN(itemID = edan_id, AppID = AppID, AppKey = AppKey)
-    #   
-    #   IDSid1 <- this_item$content$descriptiveNonRepeating$online_media$media$idsId[1]
-    #   if (!is.null(IDSid1)){
-    #     title1 <- this_item$content$descriptiveNonRepeating$title$content[1]
-    #     if (title1 == "Untitled Object"){
-    #       title1 <- ""
-    #     }
-    #     
-    #     link1 <- this_item$content$descriptiveNonRepeating$record_link[1]
-    #     if (is.null(link1)){
-    #       link1 <- paste0("http://collections.si.edu/search/detail/", edan_id)
-    #     }
-    #     
-    #     credit1 <- this_item$content$freetext$creditLine$content[1]
-    #     if (!is.null(credit1)){
-    #       credit1 <- paste0("<br>", credit1)
-    #     }else{
-    #       credit1 <- ""
-    #     }
-    #     
-    #     notes1 <- paste(this_item$content$freetext$notes$content[1], collapse = ". ")
-    #     if (!is.null(notes1) && notes1 != "1"){
-    #       notes1 <- paste0("<br>", notes1)
-    #     }else{
-    #       notes1 <- ""
-    #     }
-    #     
-    #     if (substr(IDSid1, 0, 4) != 'http'){
-    #       IDSid1 <- paste0('http://ids.si.edu/ids/deliveryService?id=', IDSid1)
-    #     }
-    #     
-    #     edan1_img <- HTML(paste0(paste0("<h4>Example images from the project:</h4><a href=\"", IDSid1, "\" target = _blank><img class = \"loading\" src=\"", IDSid1, "&max_h=130\" style=\"max-height: 130px; width:auto;\"></a>", 
-    #                                     "<dl><dd>", title1, 
-    #                                     credit1, 
-    #                                     notes1, 
-    #                                     "<br><a href=\"", link1, "\" target = _blank>Object record</a></dd></dl>")))
-    #   }else{
-    #     edan1_img <- ""
-    #   }
-    # }else{
-    #   if (edan_examples[1,]$dams_only == '1'){
-    #     edan1_img <- HTML(paste0(paste0("<h4>Example images from the project:</h4><a href=\"http://ids.si.edu/ids/dynamic?id=", 
-    #                                     edan_examples[1,]$edan_id, 
-    #                                     "\" target = _blank><img class = \"loading\" src=\"http://ids.si.edu/ids/deliveryService?id=", 
-    #                                     edan_examples[1,]$edan_id, 
-    #                                     "&max_h=130\" style=\"max-height: 130px; width:auto;\"></a><p><em>Details and link not available</em></p><br>")))
-    #   }else{
-    #     #Try using the id directly
-    #     this_item <- EDANr::getContentEDAN(itemID = edan_examples[1,]$edan_id, AppID = AppID, AppKey = AppKey)
-    #     
-    #     IDSid1 <- this_item$content$descriptiveNonRepeating$online_media$media$idsId[1]
-    #     if (!is.null(IDSid1)){
-    #       title1 <- this_item$content$descriptiveNonRepeating$title$content[1]
-    #       if (title1 == "Untitled Object"){
-    #         title1 <- ""
-    #       }
-    #       
-    #       link1 <- this_item$content$descriptiveNonRepeating$record_link[1]
-    #       if (is.null(link1)){
-    #         link1 <- paste0("http://collections.si.edu/search/detail/", edan_id)
-    #       }
-    #       
-    #       credit1 <- this_item$content$freetext$creditLine$content[1]
-    #       if (!is.null(credit1)){
-    #         credit1 <- paste0("<br>", credit1)
-    #       }else{
-    #         credit1 <- ""
-    #       }
-    #       
-    #       notes1 <- paste(this_item$content$freetext$notes$content[1], collapse = ". ")
-    #       if (!is.null(notes1) && notes1 != "1"){
-    #         notes1 <- paste0("<br>", notes1)
-    #       }else{
-    #         notes1 <- ""
-    #       }
-    #       
-    #       if (substr(IDSid1, 0, 4) != 'http'){
-    #         IDSid1 <- paste0('http://ids.si.edu/ids/deliveryService?id=', IDSid1)
-    #       }
-    #       
-    #       edan1_img <- HTML(paste0(paste0("<h4>Example images from the project:</h4><a href=\"", IDSid1, "\" target = _blank><img class = \"loading\" src=\"", IDSid1, "&max_h=130\" style=\"max-height: 130px; width:auto;\"></a>", 
-    #                                       "<dl><dd>", title1, 
-    #                                       credit1, 
-    #                                       notes1, 
-    #                                       "<br><a href=\"", link1, "\" target = _blank>Link</a></dd></dl>")))
-    #     }else{
-    #       edan1_img <- ""
-    #     }
-    #   }
-    # }
-    # 
-    # if (dim(edan_examples)[1] == 2){
-    #     
-    #   this_item_search <- EDANr::searchEDAN(q = edan_examples[2,]$edan_id, AppID = AppID, AppKey = AppKey)
-    #   if (this_item_search$rowCount == 1){
-    #     edan_id <- this_item_search$rows$url
-    #     
-    #     this_item <- EDANr::getContentEDAN(itemID = edan_id, AppID = AppID, AppKey = AppKey)
-    #     
-    #     IDSid2 <- this_item$content$descriptiveNonRepeating$online_media$media$idsId[1]
-    #     if (!is.null(IDSid2)){
-    #         
-    #       title2 <- this_item$content$descriptiveNonRepeating$title$content[1]
-    #       if (title2 == "Untitled Object"){
-    #         title2 <- ""
-    #       }
-    #       
-    #       link2 <- this_item$content$descriptiveNonRepeating$record_link[1]
-    #       if (is.null(link2)){
-    #         link2 <- paste0("http://collections.si.edu/search/detail/", edan_id)
-    #       }
-    #       credit2 <- this_item$content$freetext$creditLine$content[1]
-    #       if (!is.null(credit2)){
-    #         credit2 <- paste0("<br>", credit2)
-    #       }else{
-    #         credit2 <- ""
-    #       }
-    #       
-    #       notes2 <- paste(this_item$content$freetext$notes$content[1], collapse = ". ")
-    #       if (!is.null(notes2) && notes2 != "1"){
-    #         notes2 <- paste0("<br>", notes2)
-    #       }else{
-    #         notes2 <- ""
-    #       }
-    #       
-    #       if (substr(IDSid2, 0, 4) != 'http'){
-    #         IDSid2 <- paste0('http://ids.si.edu/ids/deliveryService?id=', IDSid2)
-    #       }
-    #       
-    #       edan2_img <- HTML(paste0(paste0("<p>&nbsp;</p><a href=\"", IDSid2, "\" target = _blank><img class = \"loading\" src=\"", IDSid2, "&max_h=130\" style=\"max-height: 130px; width:auto;\"></a>", 
-    #                                     "<dl><dd>", title2, 
-    #                                     credit2, 
-    #                                     notes2, 
-    #                                     "<br><a href=\"", link2, "\" target = _blank>Object record</a></dd></dl>")))
-    #     }else{
-    #       edan2_img <- ""
-    #       cat(paste0("error", edan_examples[2,]$edan_id))
-    #     }
-    #     
-    #   }else{
-    #     if (edan_examples[2,]$dams_only == '1'){
-    #       edan2_img <- HTML(paste0(paste0("<p>&nbsp;</p><a href=\"http://ids.si.edu/ids/dynamic?id=", 
-    #                                     edan_examples[2,]$edan_id, 
-    #                                     "\" target = _blank><img class = \"loading\" src=\"http://ids.si.edu/ids/deliveryService?id=", 
-    #                                     edan_examples[2,]$edan_id, 
-    #                                     "&max_h=130\" style=\"max-height: 130px; width:auto;\"></a><p><em>Details and link not available</em></p><br>")))
-    #     }
-    #   }
-    #   
-    # }else{
-    #   edan2_img <- ""
-    # }
-    # 
-    # if (edan1_img != "" && edan2_img != ""){
-    #   edan_hr <- "<hr>"
-    # }else{
-    #   edan_hr <- ""
-    # }
-    # 
-    # tagList(
-    #   fluidRow(
-    #     column(width = 6,
-    #            edan1_img
-    #     ),
-    #     column(width = 6,
-    #            edan2_img
-    #     )
-    #   ),
-    #   HTML(edan_hr)
-    # )
-  })
   
 
   
@@ -576,58 +383,6 @@ server <- function(input, output, session) {
       HTML(paste0("<dt>Total file size</dt><dd> <ul><li>TIF files: ", prettyNum(round(project_size$total_file_size/1000, 2), big.mark = ",", scientific=FALSE), " GB</li><li>Raw files: ", prettyNum(round(project_size$total_rawfile_size/1000, 2), big.mark = ",", scientific=FALSE), " GB</li></ul></dd><dl>"))
       )
   })
-  
-  
-  #stats_all ----
-  # output$stats_all <- renderUI({
-  #   req(input$process_summary)
-  #     tagList(
-  #       h4("Number of days between steps post capture of the images:"),
-  #       tags$img(src = paste0(input$process_summary, ".png"), width = 600, height = "auto"),
-  #       br()
-  #     )
-  # })
-  
-  #stats1 ----
-  # output$stats1 <- renderUI({
-  #   req(input$process_summary)
-  #   tagList(
-  #     h4("Days between capture of the images and VFCU completed by month:"),
-  #     tags$img(src = paste0(input$process_summary, "_1.png"), width = 600, height = "auto"),
-  #     br()
-  #   )
-  # })
-  
-  #stats2 ----
-  # output$stats2 <- renderUI({
-  #   req(input$process_summary)
-  #   tagList(
-  #     h4("Days between capture of the images and ingest into DAMS by month:"),
-  #     tags$img(src = paste0(input$process_summary, "_2.png"), width = 600, height = "auto"),
-  #     br()
-  #   )
-  # })
-  
-  #stats3 ----
-  # output$stats3 <- renderUI({
-  #   req(input$process_summary)
-  #   tagList(
-  #     h4("Days between capture of the images and data connect to CIS by month:"),
-  #     tags$img(src = paste0(input$process_summary, "_3.png"), width = 600, height = "auto"),
-  #     br()
-  #   )
-  # })
-  
-  #stats4 ----
-  # output$stats4 <- renderUI({
-  #   req(input$process_summary)
-  #   tagList(
-  #     h4("Days between capture of the images and metadata sync to EDAN by month:"),
-  #     tags$img(src = paste0(input$process_summary, "_4.png"), width = 600, height = "auto"),
-  #     br()
-  #   )
-  # })
-
   
   
   
@@ -740,28 +495,6 @@ server <- function(input, output, session) {
   
   
    
-  
-  #stats_daily_fig----
-  # output$stats_daily_fig <- DT::renderDataTable({
-  #   req(input$process_summary2)
-  #   tagList(
-  #     h4("Days between capture of the images and VFCU completed by month:"),
-  #     tags$img(src = paste0(input$process_summary2, "_day.png"), width = 600, height = "auto"),
-  #     br()
-  #   )
-  # })
-  
-  
-  
-  #stats_monthly_fig----
-  # output$stats_monthly_fig <- DT::renderDataTable({
-  #   req(input$process_summary)
-  #   tagList(
-  #     h4("Days between capture of the images and VFCU completed by month:"),
-  #     tags$img(src = paste0(input$process_summary, "_month.png"), width = 600, height = "auto"),
-  #     br()
-  #   )
-  # })
   
   
   

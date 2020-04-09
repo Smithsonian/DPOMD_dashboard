@@ -5,3 +5,7 @@ data
 .Rproj*
 *.Rproj
 .Rproj.user
+
+www/*.jpg
+
+settings.R
