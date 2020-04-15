@@ -27,7 +27,7 @@ ui <- fluidPage(
     tags$title(app_name)
   ),
   
-  HTML(paste0("<h1><a href=\"http://dpo.si.edu\" target = _blank><img src=\"dpologo.jpg\"></a> | ", app_name, "</h1>")),
+  HTML(paste0("<h1><a href=\"http://dpo.si.edu\" target = _blank><img src=\"dpologo.jpg\" alt=\"DPO Logo\" title=\"DPO Logo\"></a> | ", app_name, "</h1>")),
     tabsetPanel(type = "tabs",
                 tabPanel("Summary", 
                          br(),
@@ -123,10 +123,6 @@ ui <- fluidPage(
                                   HTML("</div></div>")
                            )
                          )
-                         
-                         
-                         
-                         
                          
                          #tags$iframe(src="https://public.tableau.com/views/MDStats/Dashboard1?:showVizHome=no&:embed=true&:device=desktop", width="1140", height="1200", seamless = TRUE)
                         ),
@@ -532,7 +528,6 @@ server <- function(input, output, session) {
       media_links <- paste0(media_links, "<hr>")
     }
     
-    #print(projects_units)
     unit <- projects_units[projects_units$unit == proj_info$project_unit, ]
     
     objects_percent <- round((proj_info$objects_digitized / proj_info$collex_to_digitize) * 100, 2)
@@ -561,11 +556,11 @@ server <- function(input, output, session) {
       
       print(proj_edan_images)
       
-      edan1 <- HTML(paste0("<a href=\"", proj_edan_images$link[1], "\" target = _blank><img class = \"loading\" src=\"", proj_edan_images$img_file[1], "\" style=\"max-height: 160px; width:auto;\"></a><p>", proj_edan_images$title[1], "<br>", proj_edan_images$credit[1], "|", proj_edan_images$notes[1], "</p>"))
+      edan1 <- HTML(paste0("<a href=\"", proj_edan_images$link[1], "\" target = _blank><img class = \"loading\" src=\"", proj_edan_images$img_file[1], "\" style=\"max-height: 160px; width:auto;\" alt=\"", proj_edan_images$title[1], "\" title=\"", proj_edan_images$title[1], "\"></a><p>", proj_edan_images$title[1], "<br>", proj_edan_images$credit[1], "|", proj_edan_images$notes[1], "</p>"))
       
-      edan2 <- HTML(paste0("<a href=\"", proj_edan_images$link[2], "\" target = _blank><img class = \"loading\" src=\"", proj_edan_images$img_file[2], "\" style=\"max-height: 160px; width:auto;\"></a><p>", proj_edan_images$title[2], "<br>", proj_edan_images$credit[2], "|", proj_edan_images$notes[2], "</p>"))
+      edan2 <- HTML(paste0("<a href=\"", proj_edan_images$link[2], "\" target = _blank><img class = \"loading\" src=\"", proj_edan_images$img_file[2], "\" style=\"max-height: 160px; width:auto;\" alt=\"", proj_edan_images$title[1], "\" title=\"", proj_edan_images$title[1], "\"></a><p>", proj_edan_images$title[2], "<br>", proj_edan_images$credit[2], "|", proj_edan_images$notes[2], "</p>"))
       
-      edan3 <- HTML(paste0("<a href=\"", proj_edan_images$link[3], "\" target = _blank><img class = \"loading\" src=\"", proj_edan_images$img_file[3], "\" style=\"max-height: 160px; width:auto;\"></a><p>", proj_edan_images$title[3], "<br>", proj_edan_images$credit[3], "|", proj_edan_images$notes[3], "</p>"))
+      edan3 <- HTML(paste0("<a href=\"", proj_edan_images$link[3], "\" target = _blank><img class = \"loading\" src=\"", proj_edan_images$img_file[3], "\" style=\"max-height: 160px; width:auto;\" alt=\"", proj_edan_images$title[1], "\" title=\"", proj_edan_images$title[1], "\"></a><p>", proj_edan_images$title[3], "<br>", proj_edan_images$credit[3], "|", proj_edan_images$notes[3], "</p>"))
       
       edan_html <- HTML(paste("<h4>Example images from the project:</h4>", tagList(
         fluidRow(
