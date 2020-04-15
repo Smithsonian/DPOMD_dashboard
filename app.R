@@ -3,7 +3,6 @@ library(shiny)
 library(dplyr)
 library(shinyWidgets)
 library(DT)
-library(ggplot2)
 library(plotly)
 
 
