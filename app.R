@@ -12,7 +12,7 @@ library(plotly)
 options(scipen=999)
 
 app_name <- "Mass Digitization Dashboard"
-app_ver <- "1.5.0"
+app_ver <- "1.5.1"
 github_link <- "https://github.com/Smithsonian/DPOMD_dashboard/"
 
 
@@ -24,14 +24,7 @@ load("data/data.RData")
 ui <- fluidPage(
   
   tags$head(
-    tags$title(app_name)#,
-    # tags$style(HTML("
-    #   .loading {
-    #       background: transparent url('ajax-loader.gif') center no-repeat;
-    #       min-height: 100px;
-    #       min-width: 70px;
-    #     }
-    # "))
+    tags$title(app_name)
   ),
   
   HTML(paste0("<h1><a href=\"http://dpo.si.edu\" target = _blank><img src=\"dpologo.jpg\"></a> | ", app_name, "</h1>")),
@@ -164,13 +157,15 @@ ui <- fluidPage(
                          hr(),
                          tags$em("The data used to calculate statistics is courtesy of the DAMS team.")
                 ),
+                #help ----
                 tabPanel("About/Help", 
                          fluidRow(
                            column(width = 4,
                              h4("About this Dashboard"),
-                             p("This dashboard provides a partial view of the data related to the DPO mass digitization projects. We hope this 
-                               helps collection staff, other Smithsonian staff, and interested parties to understand better how each project
-                               is progressing. We will continue to update this dashboard to display more details."),
+                             p("This dashboard provides a partial view of the DPO Mass Digitization projects. 
+                             We hope this helps collection staff, other Smithsonian staff, and interested 
+                             parties to understand better how each project is progressing. We will 
+                               continue to update this dashboard to display more details."),
                              h4("Data Sources"),
                              p("We are integrating data from multiple sources:"),
                              HTML("<ul>
@@ -185,7 +180,7 @@ ui <- fluidPage(
                                   HTML("&nbsp;")
                            ),
                            column(width = 4,
-                                  #help ----
+                                  
                                   h4("Definitions and notes"),
                                   HTML("<dl>
                                         <dt>Specimens</dt><dd>Number of specimens or objects in a collection that will be or have been digitized.</dd>
@@ -236,7 +231,7 @@ server <- function(input, output, session) {
       add_trace(
         x = this_proj_data$date_sort, 
         y = this_proj_data$images_captured,
-        text = prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE),
+        text = ~paste(prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE), '<br>', this_proj_data$month),
         hoverinfo = 'text',
         marker = list(color='#009CDE'),
         showlegend = F
@@ -257,7 +252,7 @@ server <- function(input, output, session) {
       add_trace(
         x = this_proj_data$date_sort, 
         y = this_proj_data$images_captured,
-        text = prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE),
+        text = ~paste(prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE), '<br>', this_proj_data$date),
         hoverinfo = 'text',
         marker = list(color='#009CDE'),
         showlegend = F
@@ -279,7 +274,7 @@ server <- function(input, output, session) {
       add_trace(
         x = this_proj_data$date_sort, 
         y = this_proj_data$images_captured,
-        text = prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE),
+        text = ~paste(prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE), '<br>', this_proj_data$date),
         hoverinfo = 'text',
         marker = list(color='#009CDE'),
         showlegend = F
@@ -299,7 +294,7 @@ server <- function(input, output, session) {
       add_trace(
         x = this_proj_data$date_sort, 
         y = this_proj_data$images_captured,
-        text = prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE),
+        text = ~paste(prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE), '<br>', this_proj_data$date),
         hoverinfo = 'text',
         marker = list(color='#009CDE'),
         showlegend = F
@@ -321,7 +316,7 @@ server <- function(input, output, session) {
       add_trace(
         x = this_proj_data$date_sort, 
         y = this_proj_data$images_captured,
-        text = prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE),
+        text = ~paste(prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE), '<br>', this_proj_data$date),
         hoverinfo = 'text',
         marker = list(color='#009CDE'),
         showlegend = F
@@ -342,7 +337,7 @@ server <- function(input, output, session) {
       add_trace(
         x = this_proj_data$date_sort, 
         y = this_proj_data$images_captured,
-        text = prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE),
+        text = ~paste(prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE), '<br>', this_proj_data$date),
         hoverinfo = 'text',
         marker = list(color='#009CDE'),
         showlegend = F
@@ -363,7 +358,7 @@ server <- function(input, output, session) {
       add_trace(
         x = this_proj_data$date_sort, 
         y = this_proj_data$images_captured,
-        text = prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE),
+        text = ~paste(prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE), '<br>', this_proj_data$date),
         hoverinfo = 'text',
         marker = list(color='#009CDE'),
         showlegend = F
@@ -387,7 +382,7 @@ server <- function(input, output, session) {
       add_trace(
         x = this_proj_data$date_sort, 
         y = this_proj_data$images_captured,
-        text = prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE),
+        text = ~paste(prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE), '<br>', this_proj_data$date),
         hoverinfo = 'text',
         marker = list(color='#009CDE'),
         showlegend = F
@@ -409,7 +404,7 @@ server <- function(input, output, session) {
       add_trace(
         x = this_proj_data$date_sort, 
         y = this_proj_data$images_captured,
-        text = prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE),
+        text = ~paste(prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE), '<br>', this_proj_data$date),
         hoverinfo = 'text',
         marker = list(color='#009CDE'),
         showlegend = F
