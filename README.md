@@ -4,6 +4,18 @@ Dashboard to display general and detailed statistics of digitization projects by
 
 Written in R/Shiny. 
 
+Packages required:
+
+ * shiny
+ * dplyr
+ * shinyWidgets
+ * DT
+ * plotly
+
+The app reads an .RData file that contains the dataframes used in each table and plot. This RData file is created by another script that reads the data from a Postgres database to generate summary statistics and time series. The script it run every Monday morning using cron.
+
+## The Dashboard
+
 The dashboard displays four tabs:
 
 ### Summary - List of projects and main summary statistics
