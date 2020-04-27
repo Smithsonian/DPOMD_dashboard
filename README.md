@@ -1,6 +1,6 @@
 # DPOMD Dashboard
 
-Dashboard to display general and detailed statistics of digitization projects by DPO Mass Digitization (https://dpo.si.edu/mass-digitization-program).
+Dashboard to display general and detailed statistics of digitization projects by DPO Mass Digitization, OCIO, Smithsonian (https://dpo.si.edu/mass-digitization-program).
 
 Written in R/Shiny. 
 
