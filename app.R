@@ -3,6 +3,7 @@ library(shiny)
 library(dplyr)
 library(shinyWidgets)
 library(DT)
+library(ggplot2)
 
 
 # Settings ----
@@ -52,6 +53,7 @@ ui <- fluidPage(
                          ),
                         h3("Digitization Projects"),
                         p("Click a project in the table below to see more details:"),
+                        
                         DT::dataTableOutput("projects"),
                          
                         tags$em("Some of the data is courtesy of the DAMS team.")
@@ -59,7 +61,8 @@ ui <- fluidPage(
                 
                 tabPanel("Progress in Select Projects",
                          br(),
-                         tags$iframe(src="https://public.tableau.com/views/MDStats/Dashboard1?:showVizHome=no&:embed=true&:device=desktop", width="1140", height="1200", seamless = TRUE)
+                         uiOutput("summary_plots")
+                         #tags$iframe(src="https://public.tableau.com/views/MDStats/Dashboard1?:showVizHome=no&:embed=true&:device=desktop", width="1140", height="1200", seamless = TRUE)
                         ),
                 tabPanel("Daily Statistics", 
                          br(),
@@ -147,6 +150,45 @@ ui <- fluidPage(
 # Server ----
 server <- function(input, output, session) {
 
+  #summary_plots ----
+  output$summary_plots <- renderUI({
+    tagList(
+      fluidRow(
+        column(width = 5,
+               h4("NMNH - Herbarium"),
+               h4("Images Captured by Month"),
+               plotOutput("plot1") 
+        ),
+        column(width = 5,
+               h4("NMNH - Paleobiology EPICC Mass Digitization - 2019"),
+               h4("Images Captured by Day"),
+               plotOutput("plot2") 
+        ),
+        column(width = 2,
+               HTML("&nbsp;")
+        )
+      )
+    )
+  })
+  
+  output$plot1 <- renderPlot({
+    fig_data <- projects_monthly_data[projects_monthly_data$project_id == 100,]
+    
+    # Add a little noise to the cars data
+    ggplot(fig_data, aes(x = as.Date(date_sort), y = images_captured)) + geom_bar(stat="identity", color = "#FFCD00", fill = "#009CDE") + scale_x_date(date_breaks = "3 months", date_labels = "%b %Y") + labs(x = "Month", y = "Images Captured") + theme(axis.text.x = element_text(angle = 90))
+    
+  })
+    
+  
+  output$plot2 <- renderPlot({
+    fig_data <- projects_daily_data[projects_daily_data$project_id == 127,]
+    
+    # Add a little noise to the cars data
+    ggplot(fig_data, aes(x = as.Date(date_sort), y = images_captured)) + geom_bar(stat="identity", color = "#FFCD00", fill = "#009CDE") + scale_x_date(date_breaks = "1 weeks", date_labels = "%d %b %Y") + labs(x = "Day", y = "Images Captured") + theme(axis.text.x = element_text(angle = 90))
+    
+  })
+  
+  
   #topsummary1----
   output$topsummary1 <- renderUI({
     tagList(
