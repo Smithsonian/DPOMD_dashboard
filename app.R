@@ -11,7 +11,7 @@ library(plotly)
 options(scipen=999)
 
 app_name <- "Mass Digitization Dashboard"
-app_ver <- "1.5.1"
+app_ver <- "1.5.2"
 github_link <- "https://github.com/Smithsonian/DPOMD_dashboard/"
 
 
