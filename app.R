@@ -15,6 +15,8 @@ app_ver <- "1.5.1"
 github_link <- "https://github.com/Smithsonian/DPOMD_dashboard/"
 
 
+source("settings.R")
+
 #Load data tables
 load("data/data.RData")
 
@@ -488,7 +490,7 @@ server <- function(input, output, session) {
     
     proj_info <- projects_info[projects_info$project_title == selected_project_title,]
     
-    if (!is.na(proj_info$filecheck_link)){
+    if (!is.na(proj_info$filecheck_link) && is_internal){
       fc_link <- paste0("<dt>Production Dashboard</dt><dd>", a(href = proj_info$filecheck_link, target = "_blank", "Link") ,"</dd>")
     }else{
       fc_link <- ""
