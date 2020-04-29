@@ -48,6 +48,7 @@ ui <- fluidPage(
                          ),
                         h3("Digitization Projects"),
                         p("Click a project in the table below to see more details:"),
+                        
                         DT::dataTableOutput("projects"),
                          
                         tags$em("Some of the data is courtesy of the DAMS team.")
