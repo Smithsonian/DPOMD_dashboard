@@ -838,7 +838,7 @@ server <- function(input, output, session) {
   
   #footer ----
   output$footer <- renderUI({
-    HTML(paste0("<div class=\"footer navbar-fixed-bottom\" style=\"background: #C6C6C6; padding-top: 10px;\"><p>&nbsp;&nbsp;", app_name, ", ver. ", app_ver, " | <a href=\"", github_link, "\" target = _blank>Source code</a> | Data updated on: ", last_date, "</p></div>"))
+    HTML(paste0("<div class=\"footer navbar-fixed-bottom\" style=\"background: #C6C6C6; padding-top: 10px;\"><p>&nbsp;&nbsp;", app_name, ", ver. ", app_ver, " | <a href=\"https://dpo.si.edu/\" target = \"_blank\">DPO</a>, <a href=\"https://www.si.edu/ocio\" target = \"_blank\">OCIO</a>, <a href=\"https://www.si.edu/\" target = \"_blank\">Smithsonian Institution</a> | <a href=\"", github_link, "\" target = _blank>Source code</a> | Data updated on: ", last_date, "</p></div>"))
   })
 }
 
