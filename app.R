@@ -29,9 +29,6 @@ ui <- fluidPage(
   tags$head(
     tags$title(app_name)
   ),
-  # uiOutput("external_server"),
-  # HTML(paste0("<h1><a href=\"http://dpo.si.edu\" target = _blank><img src=\"dpologo.jpg\" alt=\"DPO Logo\" title=\"DPO Logo\"></a> | ", app_name, "</h1>")),
-  
   fluidRow(
     column(width = 9,
            HTML(paste0("<h1><a href=\"http://dpo.si.edu\" target = _blank><img src=\"dpologo.jpg\" alt=\"DPO Logo\" title=\"DPO Logo\"></a> | ", app_name, "</h1>"))
@@ -541,7 +538,9 @@ server <- function(input, output, session) {
   
   #external_server ----
   output$external_server <- renderUI({
-    req(is_internal)
+    if (is_internal == FALSE){
+      req(FALSE)
+    }
     tagList(
       br(),
       HTML("<div class=\"alert alert-info pull-right\" role=\"alert\">"),
