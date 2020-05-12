@@ -29,8 +29,18 @@ ui <- fluidPage(
   tags$head(
     tags$title(app_name)
   ),
+  # uiOutput("external_server"),
+  # HTML(paste0("<h1><a href=\"http://dpo.si.edu\" target = _blank><img src=\"dpologo.jpg\" alt=\"DPO Logo\" title=\"DPO Logo\"></a> | ", app_name, "</h1>")),
   
-  HTML(paste0("<h1><a href=\"http://dpo.si.edu\" target = _blank><img src=\"dpologo.jpg\" alt=\"DPO Logo\" title=\"DPO Logo\"></a> | ", app_name, "</h1>")),
+  fluidRow(
+    column(width = 9,
+           HTML(paste0("<h1><a href=\"http://dpo.si.edu\" target = _blank><img src=\"dpologo.jpg\" alt=\"DPO Logo\" title=\"DPO Logo\"></a> | ", app_name, "</h1>"))
+    ),
+    column(width = 3,
+           uiOutput("external_server")
+    )
+  ),
+  
     tabsetPanel(type = "tabs",
                 tabPanel("Summary", 
                          br(),
@@ -526,6 +536,19 @@ server <- function(input, output, session) {
       HTML("</div>")
     )
   })
+  
+  
+  
+  #external_server ----
+  output$external_server <- renderUI({
+    req(is_internal)
+    tagList(
+      br(),
+      HTML("<div class=\"alert alert-info pull-right\" role=\"alert\">"),
+      HTML("<small><span class=\"glyphicon glyphicon-hand-right\" aria-hidden=\"true\"></span> Dashboard outside the SI network: <a href=\"https://shiny.si.edu/massdigi/\" target=_blank class=\"alert-link\">https://shiny.si.edu/massdigi/</a></small></div>")
+    )
+  })
+  
   
   
   #list of projects----
