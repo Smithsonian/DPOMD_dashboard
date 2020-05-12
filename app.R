@@ -16,6 +16,7 @@ app_ver <- "1.5.3"
 github_link <- "https://github.com/Smithsonian/DPOMD_dashboard/"
 
 
+#Internal or external server?
 source("settings.R")
 
 #Load data tables
@@ -231,8 +232,8 @@ ui <- fluidPage(
   br(),
   br(),
   br(),
-  uiOutput("footer"),
-  tags$head(HTML('<meta http-equiv="refresh" content="600">'))
+  uiOutput("footer")#,
+  #tags$head(HTML('<meta http-equiv="refresh" content="600">'))
 )
 
 
