@@ -4,6 +4,7 @@ library(dplyr)
 library(shinyWidgets)
 library(DT)
 library(plotly)
+library(shinycssloaders)
 
 
 # Settings ----
@@ -11,7 +12,7 @@ library(plotly)
 options(scipen=999)
 
 app_name <- "Mass Digitization Dashboard"
-app_ver <- "1.5.2"
+app_ver <- "1.5.3"
 github_link <- "https://github.com/Smithsonian/DPOMD_dashboard/"
 
 
@@ -61,14 +62,14 @@ ui <- fluidPage(
                                   HTML("<div class=\"panel panel-primary\">
                                                 <div class=\"panel-heading\">NMNH - Herbarium<br>Images Captured by Month</div>
                                                 <div class=\"panel-body\">"),
-                                  plotlyOutput("progress_bot"),
+                                  shinycssloaders::withSpinner(plotlyOutput("progress_bot")),
                                   HTML("</div></div>")
                            ),
                            column(width = 6,
                                   HTML("<div class=\"panel panel-primary\">
                                                 <div class=\"panel-heading\">NMNH - Paleobiology EPICC Mass Digitization - 2019<br>Images Captured by Day</div>
                                                 <div class=\"panel-body\">"),
-                                  plotlyOutput("progress_paleo2"),
+                                  shinycssloaders::withSpinner(plotlyOutput("progress_paleo2")),
                                   HTML("</div></div>")
                            )
                           ),
@@ -78,14 +79,32 @@ ui <- fluidPage(
                                   HTML("<div class=\"panel panel-primary\">
                                                 <div class=\"panel-heading\">NMNH - Entomology Bumblebees and Carpenter Bees<br>Images Captured by Day</div>
                                                 <div class=\"panel-body\">"),
-                                  plotlyOutput("progress_bees2"),
+                                  shinycssloaders::withSpinner(plotlyOutput("progress_bees2")),
                                   HTML("</div></div>")
                            ),
                            column(width = 6,
                                   HTML("<div class=\"panel panel-primary\">
                                                 <div class=\"panel-heading\">NMAH - Russian coins and medals, Lilly, and Straub collections<br>Images Captured by Day</div>
                                                 <div class=\"panel-body\">"),
-                                  plotlyOutput("progress_numis"),
+                                  shinycssloaders::withSpinner(plotlyOutput("progress_numis")),
+                                  HTML("</div></div>")
+                           )
+                         ),
+                         
+                         br(),
+                         fluidRow(
+                           column(width = 6,
+                                  HTML("<div class=\"panel panel-primary\">
+                                                <div class=\"panel-heading\">SG - Garden Club of America and Ken Druse Garden Photograph Collections<br>Images Captured by Day</div>
+                                                <div class=\"panel-body\">"),
+                                  shinycssloaders::withSpinner(plotlyOutput("progress_druse")),
+                                  HTML("</div></div>")
+                           ),
+                           column(width = 6,
+                                  HTML("<div class=\"panel panel-primary\">
+                                                <div class=\"panel-heading\">NMAfA - Stephen Grant Postcard Collection<br>Images Captured by Day</div>
+                                                <div class=\"panel-body\">"),
+                                  shinycssloaders::withSpinner(plotlyOutput("progress_nmafapost")),
                                   HTML("</div></div>")
                            )
                          ),
@@ -96,14 +115,14 @@ ui <- fluidPage(
                                   HTML("<div class=\"panel panel-primary\">
                                                 <div class=\"panel-heading\">SIB - Castle Chair Collection<br>Images Captured by Day</div>
                                                 <div class=\"panel-body\">"),
-                                  plotlyOutput("progress_sib"),
+                                  shinycssloaders::withSpinner(plotlyOutput("progress_sib")),
                                   HTML("</div></div>")
                            ),
                            column(width = 6,
                                   HTML("<div class=\"panel panel-primary\">
                                                 <div class=\"panel-heading\">NMAH - Princeton and War Posters Collections<br>Images Captured by Day</div>
                                                 <div class=\"panel-body\">"),
-                                  plotlyOutput("progress_posters"),
+                                  shinycssloaders::withSpinner(plotlyOutput("progress_posters")),
                                   HTML("</div></div>")
                            )
                          ),
@@ -114,17 +133,19 @@ ui <- fluidPage(
                                   HTML("<div class=\"panel panel-primary\">
                                                 <div class=\"panel-heading\">SG - Garden Furnishings, Horticult. Artifacts, and Archives<br>Images Captured by Day</div>
                                                 <div class=\"panel-body\">"),
-                                  plotlyOutput("progress_gardensarch"),
+                                  shinycssloaders::withSpinner(plotlyOutput("progress_gardensarch")),
                                   HTML("</div></div>")
                            ),
                            column(width = 6,
                                   HTML("<div class=\"panel panel-primary\">
                                                 <div class=\"panel-heading\">SG - Orchids Live Collection<br>Images Captured by Day</div>
                                                 <div class=\"panel-body\">"),
-                                  plotlyOutput("progress_orchids"),
+                                  shinycssloaders::withSpinner(plotlyOutput("progress_orchids")),
                                   HTML("</div></div>")
                            )
-                         )
+                         ),
+                         
+                         br()
                          
                          #tags$iframe(src="https://public.tableau.com/views/MDStats/Dashboard1?:showVizHome=no&:embed=true&:device=desktop", width="1140", height="1200", seamless = TRUE)
                         ),
@@ -156,7 +177,7 @@ ui <- fluidPage(
                          tags$em("The data used to calculate statistics is courtesy of the DAMS team.")
                 ),
                 #help ----
-                tabPanel("About/Help", 
+                tabPanel("About/Definitions", 
                          fluidRow(
                            column(width = 4,
                              h4("About this Dashboard"),
@@ -171,7 +192,9 @@ ui <- fluidPage(
                                       <li>Collection databases</li>
                                       <li>DPO QC systems</li>
                                   </ul>"),
-                             p("For questions or comments about this dashboard, please contact Luis J. Villanueva or Ken Rahaim at the Digitization Program Office, OCIO.")
+                             p("For questions or comments about this dashboard, please contact Luis J. Villanueva or Ken Rahaim at the Digitization Program Office, OCIO."),
+                             br(),
+                             p("We thank DAMS for providing us with a view into their database and Research Computing for hosting the R/Shiny server.")
                              
                            ),
                            column(width = 1,
@@ -183,12 +206,13 @@ ui <- fluidPage(
                                   HTML("<dl>
                                         <dt>Specimens</dt><dd>Number of specimens or objects in a collection that will be or have been digitized.</dd>
                                         <dt>Project Goal</dt><dd>Estimate of specimens or objects to digitized in a project.</dd>
-                                        <dt>Number of images captured</dt><dd>The number of images captured is calculated after the vendor has delivered them to DPO. Some projects may require additional post-processing that result in the images being delivered days or weeks after capture.</dd>
-                                        <dt>Ojects/Specimens Digitized vs Images Captured</dt><dd>The number of objects or specimens digitized may not match the number of images in some projects. For some projects we capture several views for each object and some objects are too big for the field of view of the camera. Other projects may have multiple objects in a single picture.</dd>
-                                        <dt>Dates</dt><dd>These are the range of dates between the beginning of the digitization project and the final delivery of the images by the vendor. This range does not include the time for planning, preparation of the collection, or ingest of the images into the collection database. We plan to provide some of this data in the future.</dd>
+                                        <dt>Number of images captured</dt><dd>The number of images captured is calculated after the vendor has delivered them to DPO and the images have been ingested in DAMS. Some projects may require additional post-processing that result in the images being delivered days or weeks after capture.</dd>
+                                        <dt>Objects/Specimens Digitized vs Images Captured</dt><dd>The number of objects or specimens digitized may not match the number of images in some projects. We capture several views for each object in some projects. In other projects, some objects are too big for the field of view of the camera. Other projects have multiple objects in a single picture.</dd>
+                                        <dt>Dates</dt><dd>These are the range of dates between the beginning of the digitization project and the final delivery of the images by the vendor. This range does not include the time for planning, preparation of the collection, or ingest of the images into the collection database.</dd>
                                         <dt>Status</dt><dd>Projects are categorized as \"Completed\" when the vendor completes delivery of the images. There might be additional steps needed to import the images to the various systems.</dd>
-                                <dt>Funding (coming soon)</dt><dd>We list the major sources of funding for each project. There may be additional costs covered by the unit or OCIO/DPO (<em>e.g.</em> staff, data processing and storage, and other computing resources) that are not quantified directly.</dd>
+                                
                                 </dl>")
+                                  #<dt>Funding (coming soon)</dt><dd>We list the major sources of funding for each project. There may be additional costs covered by the unit or OCIO/DPO (<em>e.g.</em> staff, data processing and storage, and other computing resources) that are not quantified directly.</dd>
                                   ),
                            column(width = 3,
                                   h4("Mass Digi links"),
@@ -229,12 +253,12 @@ server <- function(input, output, session) {
       add_trace(
         x = this_proj_data$date_sort, 
         y = this_proj_data$images_captured,
-        text = ~paste(prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE), '<br>', this_proj_data$month),
+        text = ~paste0(' ', prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE), ' images<br> ', this_proj_data$month, ' '),
         hoverinfo = 'text',
         marker = list(color='#009CDE'),
         showlegend = F
       ) %>% layout(
-        xaxis = list(title = "Date", fixedrange = TRUE),
+        xaxis = list(title = "Month", fixedrange = TRUE),
         yaxis = list(title = "Images Captured", fixedrange = TRUE),
       font = plotfont
       )
@@ -250,7 +274,7 @@ server <- function(input, output, session) {
       add_trace(
         x = this_proj_data$date_sort, 
         y = this_proj_data$images_captured,
-        text = ~paste(prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE), '<br>', this_proj_data$date),
+        text = ~paste0(' ', prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE), ' images<br> ', this_proj_data$date, ' '),
         hoverinfo = 'text',
         marker = list(color='#009CDE'),
         showlegend = F
@@ -272,7 +296,7 @@ server <- function(input, output, session) {
       add_trace(
         x = this_proj_data$date_sort, 
         y = this_proj_data$images_captured,
-        text = ~paste(prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE), '<br>', this_proj_data$date),
+        text = ~paste0(' ', prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE), ' images<br> ', this_proj_data$date, ' '),
         hoverinfo = 'text',
         marker = list(color='#009CDE'),
         showlegend = F
@@ -292,7 +316,7 @@ server <- function(input, output, session) {
       add_trace(
         x = this_proj_data$date_sort, 
         y = this_proj_data$images_captured,
-        text = ~paste(prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE), '<br>', this_proj_data$date),
+        text = ~paste0(' ', prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE), ' images<br> ', this_proj_data$date, ' '),
         hoverinfo = 'text',
         marker = list(color='#009CDE'),
         showlegend = F
@@ -314,7 +338,7 @@ server <- function(input, output, session) {
       add_trace(
         x = this_proj_data$date_sort, 
         y = this_proj_data$images_captured,
-        text = ~paste(prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE), '<br>', this_proj_data$date),
+        text = ~paste0(' ', prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE), ' images<br> ', this_proj_data$date, ' '),
         hoverinfo = 'text',
         marker = list(color='#009CDE'),
         showlegend = F
@@ -335,7 +359,7 @@ server <- function(input, output, session) {
       add_trace(
         x = this_proj_data$date_sort, 
         y = this_proj_data$images_captured,
-        text = ~paste(prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE), '<br>', this_proj_data$date),
+        text = ~paste0(' ', prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE), ' images<br> ', this_proj_data$date, ' '),
         hoverinfo = 'text',
         marker = list(color='#009CDE'),
         showlegend = F
@@ -356,7 +380,7 @@ server <- function(input, output, session) {
       add_trace(
         x = this_proj_data$date_sort, 
         y = this_proj_data$images_captured,
-        text = ~paste(prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE), '<br>', this_proj_data$date),
+        text = ~paste0(' ', prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE), ' images<br> ', this_proj_data$date, ' '),
         hoverinfo = 'text',
         marker = list(color='#009CDE'),
         showlegend = F
@@ -370,7 +394,6 @@ server <- function(input, output, session) {
   
   
   
-  
   #progress_gardensarch----
   output$progress_gardensarch <- renderPlotly({
     this_proj_data <- projects_daily_data[projects_daily_data$project_id == 119,]
@@ -380,7 +403,7 @@ server <- function(input, output, session) {
       add_trace(
         x = this_proj_data$date_sort, 
         y = this_proj_data$images_captured,
-        text = ~paste(prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE), '<br>', this_proj_data$date),
+        text = ~paste0(' ', prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE), ' images<br> ', this_proj_data$date, ' '),
         hoverinfo = 'text',
         marker = list(color='#009CDE'),
         showlegend = F
@@ -402,7 +425,7 @@ server <- function(input, output, session) {
       add_trace(
         x = this_proj_data$date_sort, 
         y = this_proj_data$images_captured,
-        text = ~paste(prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE), '<br>', this_proj_data$date),
+        text = ~paste0(' ', prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE), ' images<br> ', this_proj_data$date, ' '),
         hoverinfo = 'text',
         marker = list(color='#009CDE'),
         showlegend = F
@@ -413,6 +436,54 @@ server <- function(input, output, session) {
       ) %>% 
       config(displaylogo = FALSE)
   })
+  
+  
+  
+  
+  #progress_druse----
+  output$progress_druse <- renderPlotly({
+    this_proj_data <- projects_daily_data[projects_daily_data$project_id == 120,]
+    
+    fig <- plot_ly(type = 'bar') 
+    fig <- fig %>%
+      add_trace(
+        x = this_proj_data$date_sort, 
+        y = this_proj_data$images_captured,
+        text = ~paste0(' ', prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE), ' images<br> ', this_proj_data$date, ' '),
+        hoverinfo = 'text',
+        marker = list(color='#009CDE'),
+        showlegend = F
+      ) %>% layout(
+        xaxis = list(title = "Date", fixedrange = TRUE),
+        yaxis = list(title = "Images Captured", fixedrange = TRUE),
+        font = plotfont
+      ) %>% 
+      config(displaylogo = FALSE)
+  })
+  
+  
+  
+  #progress_nmafapost----
+  output$progress_nmafapost <- renderPlotly({
+    this_proj_data <- projects_daily_data[projects_daily_data$project_id == 125,]
+    
+    fig <- plot_ly(type = 'bar') 
+    fig <- fig %>%
+      add_trace(
+        x = this_proj_data$date_sort, 
+        y = this_proj_data$images_captured,
+        text = ~paste0(' ', prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE), ' images<br> ', this_proj_data$date, ' '),
+        hoverinfo = 'text',
+        marker = list(color='#009CDE'),
+        showlegend = F
+      ) %>% layout(
+        xaxis = list(title = "Date", fixedrange = TRUE),
+        yaxis = list(title = "Images Captured", fixedrange = TRUE),
+        font = plotfont
+      ) %>% 
+      config(displaylogo = FALSE)
+  })
+  
   
   
   #topsummary1----
