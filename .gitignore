@@ -1,9 +1,6 @@
 data
-
 .Rhistory
-
 .Rproj*
 *.Rproj
 .Rproj.user
-
 www/*.jpg

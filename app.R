@@ -5,6 +5,7 @@ library(shinyWidgets)
 library(DT)
 library(plotly)
 library(shinycssloaders)
+library(lubridate)
 
 
 # Settings ----
@@ -12,7 +13,7 @@ library(shinycssloaders)
 options(scipen=999)
 
 app_name <- "Mass Digitization Dashboard"
-app_ver <- "1.5.3"
+app_ver <- "1.5.4"
 github_link <- "https://github.com/Smithsonian/DPOMD_dashboard/"
 
 
@@ -55,6 +56,7 @@ ui <- fluidPage(
                                   uiOutput("topsummary2")
                            )
                          ),
+                        shinycssloaders::withSpinner(plotlyOutput("mdprogress", width = "100%", height = "480px")),
                         h3("Digitization Projects"),
                         p("Click a project in the table below to see more details:"),
                         
@@ -251,6 +253,72 @@ server <- function(input, output, session) {
   #font for plotly----
   plotfont <- list(
     family = "Helvetica")
+  
+  
+  #mdprogress----
+  output$mdprogress <- renderPlotly({
+    
+    running_total_df <- projects_monthly_data %>% 
+      dplyr::group_by(date_sort, month) %>% 
+      dplyr::summarise(total = sum(images_captured), objects = sum(objects_digitized))
+    
+    running_total_df$images_captured_running <- cumsum(running_total_df$total)
+    running_total_df$objects_digitized_running <- cumsum(running_total_df$objects)
+    running_total_df$unix_date <- as.numeric(as.POSIXct(running_total_df$date_sort, format="%Y-%m-%d"))*1000
+    
+    fig <- plot_ly(type = 'scatter', mode = 'lines+markers') 
+    fig <- fig %>%
+      add_trace(
+        name = 'Images Captured',
+        x = running_total_df$unix_date, 
+        y = running_total_df$images_captured_running,
+        text = ~paste0(prettyNum(as.integer(running_total_df$images_captured_running), big.mark = ",", scientific=FALSE), 
+                       ' images<br> ', 
+                       running_total_df$month),
+        hoverinfo = 'text',
+        line = list(color = '#002554'),
+        marker = list(color = '#002554'),
+        showlegend = T
+      ) %>% 
+      add_trace(
+        name = "Objects/Specimens Digitized",
+        x = running_total_df$unix_date, 
+        y = running_total_df$objects_digitized_running,
+        text = ~paste0(prettyNum(as.integer(running_total_df$objects_digitized_running), big.mark = ",", scientific=FALSE), 
+                       ' objects/specimens<br> ', 
+                       running_total_df$month),
+        hoverinfo = 'text',
+        line = list(color = '#009CDE'),
+        marker = list(color = '#009CDE'),
+        showlegend = T
+      ) %>% 
+      layout(
+        xaxis = list(
+            title = "Month", 
+            fixedrange = TRUE, 
+            range = c(
+              as.numeric(as.POSIXct(
+                min(running_total_df$date_sort), format="%Y-%m-%d"))*1000,
+              as.numeric(as.POSIXct(
+                max(running_total_df$date_sort) + months(1), format="%Y-%m-%d"))*1000
+              ),
+            type = 'date',
+            tickformat = "%b %Y",
+            autotick = F,
+            dtick = "M3",
+            tickangle = -45,
+            ticks = "inside",
+            showgrid = FALSE,
+            size = 18
+            ),
+        yaxis = list(title = "Running Total", fixedrange = TRUE),
+        font = plotfont,
+        legend = list(x = 0.8, y = 0.1)
+      )
+  })
+  
+  
+  
   
   #progress_bot----
   output$progress_bot <- renderPlotly({
