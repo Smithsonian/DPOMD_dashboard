@@ -13,7 +13,7 @@ library(lubridate)
 options(scipen=999)
 
 app_name <- "Mass Digitization Dashboard"
-app_ver <- "1.5.4"
+app_ver <- "1.5.5"
 github_link <- "https://github.com/Smithsonian/DPOMD_dashboard/"
 
 
@@ -63,6 +63,8 @@ ui <- fluidPage(
                         
                         DT::dataTableOutput("projects"),
                          
+                        HTML("<p class=\"text-info\"><small>* Value was estimated.<br>** Progress is based on the number of specimens/objects expected to be digitized. This value may change during production due to a number of reasons.</small></p>"),
+                        
                         tags$em("Some of the data is courtesy of the DAMS team.")
                         ),
                 
@@ -619,12 +621,12 @@ server <- function(input, output, session) {
   
   
   
-  #list of projects----
+  #projects----
   output$projects <- DT::renderDataTable({
     
     DT::datatable(
       projects_list_tbl,
-      escape = FALSE, 
+      escape = FALSE,
       options = list(
         searching = FALSE,
         ordering = TRUE, 
@@ -635,12 +637,14 @@ server <- function(input, output, session) {
         columnDefs = list(list(
           className = 'dt-right', targets = c(4, 5)))
       ),
-      rownames = FALSE, 
-      selection = 'single',
-      caption = htmltools::tags$caption(
-        style = 'caption-side: bottom; text-align: left;',
-        '* value was estimated'
-      )) %>% 
+      rownames = FALSE,
+      colnames = c('Unit', 'Title', 'Status', 'Specimens/Obj Digitized', 'Project Progress <sup>**</sup>', 'Images Captured', 'Dates'),
+      selection = 'single'#,
+      #caption = htmltools::tags$caption(
+      #  style = 'caption-side: bottom; text-align: left;',
+      #  '* Value was estimated\n** Project progress is based on the estimated number of specimens/objects expected to be digitized'
+      #)
+      ) %>% 
         formatStyle("Dates", "white-space" = "nowrap") %>% formatStyle(
           'Status',
           backgroundColor = styleEqual(c('Ongoing', 'Completed'), c('#dff0d8', '#ECECEC'))
