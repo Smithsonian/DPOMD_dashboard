@@ -624,8 +624,12 @@ server <- function(input, output, session) {
   #projects----
   output$projects <- DT::renderDataTable({
     
+    projects_list_tbl2 <- projects_list_tbl
+    
+    #rename(projects_list_tbl2, c("Project Progress" = "Project Progress**"))
+    
     DT::datatable(
-      projects_list_tbl,
+      projects_list_tbl2,
       escape = FALSE,
       options = list(
         searching = FALSE,
@@ -719,34 +723,37 @@ server <- function(input, output, session) {
     edan_html <- ""
     edan_images <- projects_edan[projects_edan$project_id == proj_info$project_id,]
     
-    proj_edan_images <- sample_n(edan_images, 3, replace = FALSE)
-    
-    if (dim(proj_edan_images)[1] == 3){
+    if (dim(edan_images)[1] > 0){
+      proj_edan_images <- sample_n(edan_images, 3, replace = FALSE)
       
-      print(proj_edan_images)
-      
-      edan1 <- HTML(paste0("<a href=\"", proj_edan_images$link[1], "\" target = _blank><img class = \"loading\" src=\"", proj_edan_images$img_file[1], "\" style=\"max-height: 160px; width:auto;\" alt=\"", proj_edan_images$title[1], "\" title=\"", proj_edan_images$title[1], "\"></a><p>", proj_edan_images$title[1], "<br>", proj_edan_images$credit[1], "|", proj_edan_images$notes[1], "</p>"))
-      
-      edan2 <- HTML(paste0("<a href=\"", proj_edan_images$link[2], "\" target = _blank><img class = \"loading\" src=\"", proj_edan_images$img_file[2], "\" style=\"max-height: 160px; width:auto;\" alt=\"", proj_edan_images$title[1], "\" title=\"", proj_edan_images$title[1], "\"></a><p>", proj_edan_images$title[2], "<br>", proj_edan_images$credit[2], "|", proj_edan_images$notes[2], "</p>"))
-      
-      edan3 <- HTML(paste0("<a href=\"", proj_edan_images$link[3], "\" target = _blank><img class = \"loading\" src=\"", proj_edan_images$img_file[3], "\" style=\"max-height: 160px; width:auto;\" alt=\"", proj_edan_images$title[1], "\" title=\"", proj_edan_images$title[1], "\"></a><p>", proj_edan_images$title[3], "<br>", proj_edan_images$credit[3], "|", proj_edan_images$notes[3], "</p>"))
-      
-      edan_html <- HTML(paste("<h4>Example images from the project:</h4>", tagList(
-        fluidRow(
-          column(width = 4,
-                 edan1
+      if (dim(proj_edan_images)[1] == 3){
+        
+        print(proj_edan_images)
+        
+        edan1 <- HTML(paste0("<a href=\"", proj_edan_images$link[1], "\" target = _blank><img class = \"loading\" src=\"", proj_edan_images$img_file[1], "\" style=\"max-height: 160px; width:auto;\" alt=\"", proj_edan_images$title[1], "\" title=\"", proj_edan_images$title[1], "\"></a><p>", proj_edan_images$title[1], "<br>", proj_edan_images$credit[1], "|", proj_edan_images$notes[1], "</p>"))
+        
+        edan2 <- HTML(paste0("<a href=\"", proj_edan_images$link[2], "\" target = _blank><img class = \"loading\" src=\"", proj_edan_images$img_file[2], "\" style=\"max-height: 160px; width:auto;\" alt=\"", proj_edan_images$title[1], "\" title=\"", proj_edan_images$title[1], "\"></a><p>", proj_edan_images$title[2], "<br>", proj_edan_images$credit[2], "|", proj_edan_images$notes[2], "</p>"))
+        
+        edan3 <- HTML(paste0("<a href=\"", proj_edan_images$link[3], "\" target = _blank><img class = \"loading\" src=\"", proj_edan_images$img_file[3], "\" style=\"max-height: 160px; width:auto;\" alt=\"", proj_edan_images$title[1], "\" title=\"", proj_edan_images$title[1], "\"></a><p>", proj_edan_images$title[3], "<br>", proj_edan_images$credit[3], "|", proj_edan_images$notes[3], "</p>"))
+        
+        edan_html <- HTML(paste("<h4>Example images from the project:</h4>", tagList(
+          fluidRow(
+            column(width = 4,
+                   edan1
+            ),
+            column(width = 4,
+                   edan2
+            ),
+            column(width = 4,
+                   edan3
+            )
           ),
-          column(width = 4,
-                 edan2
-          ),
-          column(width = 4,
-                 edan3
-          )
-        ),
-        hr()
-      )
-      ))
+          hr()
+        )
+        ))
+      }
     }
+    
     
     
     showModal(modalDialog(
