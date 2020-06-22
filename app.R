@@ -33,7 +33,7 @@ ui <- fluidPage(
   HTML("<div class=\"alert alert-danger\" role=\"alert\">The Smithsonian is currently closed as part of the efforts to contain the spread of COVID-19. Our digitization projects are on hold until the staff and vendors can safely return to the museums.</div>"),
   fluidRow(
     column(width = 9,
-           HTML(paste0("<h1><a href=\"http://dpo.si.edu\" target = _blank><img src=\"dpologo.png\" alt=\"DPO Logo\" title=\"DPO Logo\"></a> | ", app_name, "</h1>"))
+           HTML(paste0("<h1><a href=\"http://dpo.si.edu\" target = _blank><img src=\"DPO_logo_76.png\" alt=\"DPO Logo\" title=\"DPO Logo\"></a> | ", app_name, "</h1>"))
     ),
     column(width = 3,
            uiOutput("external_server")
