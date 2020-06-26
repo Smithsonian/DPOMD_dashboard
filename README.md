@@ -12,6 +12,7 @@ Packages required:
  * DT
  * plotly
  * shinycssloaders
+ * lubridate
 
 The app reads `data.RData`, which contains the dataframes used in each table and plot. This `data.RData` file is created by another script that reads the data from a Postgres database to generate summary statistics and time series. The script it run every Monday morning using `cron`.
 
