@@ -13,7 +13,7 @@ library(lubridate)
 options(scipen=999)
 
 app_name <- "Mass Digitization Dashboard"
-app_ver <- "1.5.5"
+app_ver <- "1.5.6"
 github_link <- "https://github.com/Smithsonian/DPOMD_dashboard/"
 
 
@@ -627,6 +627,27 @@ server <- function(input, output, session) {
     projects_list_tbl2 <- projects_list_tbl
     
     #rename(projects_list_tbl2, c("Project Progress" = "Project Progress**"))
+    
+    for (i in seq(1, dim(projects_list_tbl2)[1])){
+      
+      projects_list_tbl2$Title[1]
+      
+      this_proj <- projects[projects$project_title == projects_list_tbl2$Title[i], ]
+      
+      edan_images <- projects_edan[projects_edan$project_id == this_proj$project_id, ]
+      
+      if (dim(edan_images)[1] > 2){
+        projects_list_tbl2$Title[i] <- paste0(projects_list_tbl2$Title[i], " &nbsp; <span class=\"glyphicon glyphicon-picture\" aria-hidden=\"true\" title = \"Click on the row to see example images from the project\"></span>")
+      }
+      
+      proj_media <- projects_media[projects_media$project_id == this_proj$project_id, ]
+      
+      if (dim(proj_media[proj_media$media_type == "yt", ])[1] > 0){
+        projects_list_tbl2$Title[i] <- paste0(projects_list_tbl2$Title[i], " &nbsp; <span class=\"glyphicon glyphicon-facetime-video\" aria-hidden=\"true\" title = \"Click on the row to see a video of the project\"></span>")
+      }
+    }
+    
+    
     
     DT::datatable(
       projects_list_tbl2,
