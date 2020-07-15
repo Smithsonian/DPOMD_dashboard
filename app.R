@@ -13,7 +13,7 @@ library(lubridate)
 options(scipen=999)
 
 app_name <- "Mass Digitization Dashboard"
-app_ver <- "1.5.6"
+app_ver <- "1.5.7"
 github_link <- "https://github.com/Smithsonian/DPOMD_dashboard/"
 
 
@@ -30,7 +30,7 @@ ui <- fluidPage(
   tags$head(
     tags$title(app_name)
   ),
-  HTML("<div class=\"alert alert-danger\" role=\"alert\">The Smithsonian is currently closed as part of the efforts to contain the spread of COVID-19. Our digitization projects are on hold until the staff and vendors can safely return to the museums.</div>"),
+  HTML("<div class=\"alert alert-danger\" role=\"alert\">The Smithsonian is currently closed as part of the efforts to contain the spread of COVID-19. Some of our digitization projects have restarted and some are on hold until the staff and vendors can safely return to the museums.</div>"),
   fluidRow(
     column(width = 9,
            HTML(paste0("<h1><a href=\"http://dpo.si.edu\" target = _blank><img src=\"DPO_logo_76.png\" alt=\"DPO Logo\" title=\"DPO Logo\"></a> | ", app_name, "</h1>"))
@@ -263,7 +263,8 @@ server <- function(input, output, session) {
     
     running_total_df <- projects_monthly_data %>% 
       dplyr::group_by(date_sort, month) %>% 
-      dplyr::summarise(total = sum(images_captured), objects = sum(objects_digitized))
+      dplyr::summarise(total = sum(images_captured), objects = sum(objects_digitized)) %>% 
+      dplyr::filter(total != 0)
     
     running_total_df$images_captured_running <- cumsum(running_total_df$total)
     running_total_df$objects_digitized_running <- cumsum(running_total_df$objects)
