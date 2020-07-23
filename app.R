@@ -673,7 +673,7 @@ server <- function(input, output, session) {
       ) %>% 
         formatStyle("Dates", "white-space" = "nowrap") %>% formatStyle(
           'Status',
-          backgroundColor = styleEqual(c('Ongoing', 'Completed'), c('#dff0d8', '#ECECEC'))
+          backgroundColor = styleEqual(c('Ongoing', 'Completed', 'Paused'), c('#dff0d8', '#ECECEC', '#ECECEC'))
         )
   })
   
