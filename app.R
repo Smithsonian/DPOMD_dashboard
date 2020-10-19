@@ -30,7 +30,7 @@ ui <- fluidPage(
   tags$head(
     tags$title(app_name)
   ),
-  HTML("<div class=\"alert alert-danger\" role=\"alert\">The Smithsonian is currently closed as part of the efforts to contain the spread of COVID-19. Some of our digitization projects have restarted and some are on hold until the staff and vendors can safely return to the museums.</div>"),
+  HTML("<div class=\"alert alert-danger\" role=\"alert\">Most Smithsonian buildings are closed as part of the efforts to contain the spread of COVID-19. Some of our digitization projects have restarted and some are on hold until the staff and vendors can safely return to the museums.</div>"),
   fluidRow(
     column(width = 9,
            HTML(paste0("<h1><a href=\"http://dpo.si.edu\" target = _blank><img src=\"DPO_logo_76.png\" alt=\"DPO Logo\" title=\"DPO Logo\"></a> | ", app_name, "</h1>"))
@@ -963,7 +963,7 @@ server <- function(input, output, session) {
   
   #footer ----
   output$footer <- renderUI({
-    HTML(paste0("<div class=\"footer navbar-fixed-bottom\" style=\"background: #C6C6C6; padding-top: 10px;\"><p>&nbsp;&nbsp;", app_name, ", ver. ", app_ver, " | <a href=\"https://dpo.si.edu/\" target = \"_blank\">DPO</a>, <a href=\"https://www.si.edu/ocio\" target = \"_blank\">OCIO</a>, <a href=\"https://www.si.edu/\" target = \"_blank\">Smithsonian Institution</a> | <a href=\"", github_link, "\" target = _blank>Source code</a> | Data updated on: ", last_date, "</p></div>"))
+    HTML(paste0("<div class=\"footer navbar-fixed-bottom\" style=\"background: #C6C6C6; padding-top: 10px;\"><p style = \"font-size: 80%;\">&nbsp;&nbsp;", app_name, ", ver. ", app_ver, " | <a href=\"https://dpo.si.edu/\" target = \"_blank\">DPO</a>, <a href=\"https://www.si.edu/ocio\" target = \"_blank\">OCIO</a>, <a href=\"https://www.si.edu/\" target = \"_blank\">Smithsonian Institution</a> | <a href=\"", github_link, "\" target = _blank>Source code</a> | Data updated on: ", last_date, "</p></div>"))
   })
 }
 
