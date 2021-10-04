@@ -2,6 +2,8 @@
 
 Dashboard to display general and detailed statistics of digitization projects by DPO Mass Digitization, OCIO, Smithsonian (https://dpo.si.edu/mass-digitization-program).
 
+Live version of the Mass Digi Dashboard: https://shiny.si.edu/massdigi/
+
 Written in R/Shiny. 
 
 Packages required:
