@@ -13,7 +13,7 @@ library(lubridate)
 options(scipen=999)
 
 app_name <- "Mass Digitization Dashboard"
-app_ver <- "1.5.7"
+app_ver <- "1.5.8"
 github_link <- "https://github.com/Smithsonian/DPOMD_dashboard/"
 
 
@@ -30,7 +30,7 @@ ui <- fluidPage(
   tags$head(
     tags$title(app_name)
   ),
-  HTML("<div class=\"alert alert-danger\" role=\"alert\">Most Smithsonian buildings are closed as part of the efforts to contain the spread of COVID-19. Some of our digitization projects have restarted and some are on hold until the staff and vendors can safely return to the museums.</div>"),
+  HTML("<div class=\"alert alert-warning\" role=\"alert\">Most Smithsonian staff is <a href=\"https://dpo.si.edu/blog/work-safe-initiative-covid-19-and-future\" target=\"_blank\">teleworking as part of the efforts to contain the spread of COVID-19</a>. Some of our digitization projects are on hold and some have restarted.<br>We are also using new approaches to digitize other sources of data from the collections. <a href=\"https://dpo.si.edu/index.php/blog/mass-digitization-paleobiology-locality-ledgers-and-transcription\" target=\"_blank\">Read a recent blog post on one such project here</a>.</div>"),
   fluidRow(
     column(width = 9,
            HTML(paste0("<h1><a href=\"http://dpo.si.edu\" target = _blank><img src=\"DPO_logo_76.png\" alt=\"DPO Logo\" title=\"DPO Logo\"></a> | ", app_name, "</h1>"))
@@ -67,7 +67,7 @@ ui <- fluidPage(
                         
                         tags$em("Some of the data is courtesy of the DAMS team.")
                         ),
-                
+                #Progress in Select Projects----
                 tabPanel("Progress in Select Projects",
                          br(),
                          fluidRow(
@@ -80,9 +80,9 @@ ui <- fluidPage(
                            ),
                            column(width = 6,
                                   HTML("<div class=\"panel panel-primary\">
-                                                <div class=\"panel-heading\">NMNH - Paleobiology EPICC Mass Digitization - 2019<br>Images Captured by Day</div>
+                                                <div class=\"panel-heading\">NMNH - Human Studies Film Archives, Tanna Island 1974 35mm slides<br>Images Captured by Day</div>
                                                 <div class=\"panel-body\">"),
-                                  shinycssloaders::withSpinner(plotlyOutput("progress_paleo2")),
+                                  shinycssloaders::withSpinner(plotlyOutput("progress_nmnh_hsfa")),
                                   HTML("</div></div>")
                            )
                           ),
@@ -90,53 +90,54 @@ ui <- fluidPage(
                          fluidRow(
                            column(width = 6,
                                   HTML("<div class=\"panel panel-primary\">
+                                                <div class=\"panel-heading\">NMNH - Paleobiology EPICC Mass Digitization - 2019<br>Images Captured by Day</div>
+                                                <div class=\"panel-body\">"),
+                                  shinycssloaders::withSpinner(plotlyOutput("progress_paleo2")),
+                                  HTML("</div></div>")
+                           ),
+                           column(width = 6,
+                                  HTML("<div class=\"panel panel-primary\">
                                                 <div class=\"panel-heading\">NMNH - Entomology Bumblebees and Carpenter Bees<br>Images Captured by Day</div>
                                                 <div class=\"panel-body\">"),
                                   shinycssloaders::withSpinner(plotlyOutput("progress_bees2")),
                                   HTML("</div></div>")
-                           ),
+                           )
+                         ),
+                         
+                         br(),
+                         fluidRow(
                            column(width = 6,
                                   HTML("<div class=\"panel panel-primary\">
                                                 <div class=\"panel-heading\">NMAH - Russian coins and medals, Lilly, and Straub collections<br>Images Captured by Day</div>
                                                 <div class=\"panel-body\">"),
                                   shinycssloaders::withSpinner(plotlyOutput("progress_numis")),
                                   HTML("</div></div>")
-                           )
-                         ),
-                         
-                         br(),
-                         fluidRow(
+                           ),
                            column(width = 6,
                                   HTML("<div class=\"panel panel-primary\">
                                                 <div class=\"panel-heading\">SG - Garden Club of America and Ken Druse Garden Photograph Collections<br>Images Captured by Day</div>
                                                 <div class=\"panel-body\">"),
                                   shinycssloaders::withSpinner(plotlyOutput("progress_druse")),
                                   HTML("</div></div>")
-                           ),
+                           )
+                           
+                         ),
+                         
+                         br(),
+                         fluidRow(
                            column(width = 6,
                                   HTML("<div class=\"panel panel-primary\">
                                                 <div class=\"panel-heading\">NMAfA - Stephen Grant Postcard Collection<br>Images Captured by Day</div>
                                                 <div class=\"panel-body\">"),
                                   shinycssloaders::withSpinner(plotlyOutput("progress_nmafapost")),
                                   HTML("</div></div>")
-                           )
-                         ),
-                         
-                         br(),
-                         fluidRow(
+                           ),
                            column(width = 6,
                                   HTML("<div class=\"panel panel-primary\">
                                                 <div class=\"panel-heading\">SIB - Castle Chair Collection<br>Images Captured by Day</div>
                                                 <div class=\"panel-body\">"),
                                   shinycssloaders::withSpinner(plotlyOutput("progress_sib")),
                                   HTML("</div></div>")
-                           ),
-                           column(width = 6,
-                                  HTML("<div class=\"panel panel-primary\">
-                                                <div class=\"panel-heading\">NMAH - Princeton and War Posters Collections<br>Images Captured by Day</div>
-                                                <div class=\"panel-body\">"),
-                                  shinycssloaders::withSpinner(plotlyOutput("progress_posters")),
-                                  HTML("</div></div>")
                            )
                          ),
                          
@@ -144,20 +145,32 @@ ui <- fluidPage(
                          fluidRow(
                            column(width = 6,
                                   HTML("<div class=\"panel panel-primary\">
+                                                <div class=\"panel-heading\">NMAH - Princeton and War Posters Collections<br>Images Captured by Day</div>
+                                                <div class=\"panel-body\">"),
+                                  shinycssloaders::withSpinner(plotlyOutput("progress_posters")),
+                                  HTML("</div></div>")
+                           ),
+                           column(width = 6,
+                                  HTML("<div class=\"panel panel-primary\">
                                                 <div class=\"panel-heading\">SG - Garden Furnishings, Horticult. Artifacts, and Archives<br>Images Captured by Day</div>
                                                 <div class=\"panel-body\">"),
                                   shinycssloaders::withSpinner(plotlyOutput("progress_gardensarch")),
                                   HTML("</div></div>")
-                           ),
+                           )
+                         ),
+                         br(),
+                         fluidRow(
                            column(width = 6,
                                   HTML("<div class=\"panel panel-primary\">
                                                 <div class=\"panel-heading\">SG - Orchids Live Collection<br>Images Captured by Day</div>
                                                 <div class=\"panel-body\">"),
                                   shinycssloaders::withSpinner(plotlyOutput("progress_orchids")),
                                   HTML("</div></div>")
+                           ),
+                           column(width = 6,
+                                  HTML("<br>")
                            )
                          ),
-                         
                          br()
                          
                          #tags$iframe(src="https://public.tableau.com/views/MDStats/Dashboard1?:showVizHome=no&:embed=true&:device=desktop", width="1140", height="1200", seamless = TRUE)
@@ -566,6 +579,29 @@ server <- function(input, output, session) {
   
   
   
+  #progress_nmnh_hsfa----
+  output$progress_nmnh_hsfa <- renderPlotly({
+    this_proj_data <- projects_daily_data[projects_daily_data$project_id == 129,]
+    
+    fig <- plot_ly(type = 'bar') 
+    fig <- fig %>%
+      add_trace(
+        x = this_proj_data$date_sort, 
+        y = this_proj_data$images_captured,
+        text = ~paste0(' ', prettyNum(as.integer(this_proj_data$images_captured), big.mark = ",", scientific=FALSE), ' images<br> ', this_proj_data$date, ' '),
+        hoverinfo = 'text',
+        marker = list(color='#009CDE'),
+        showlegend = F
+      ) %>% layout(
+        xaxis = list(title = "Date", fixedrange = TRUE),
+        yaxis = list(title = "Images Captured", fixedrange = TRUE),
+        font = plotfont
+      ) %>% 
+      config(displaylogo = FALSE)
+  })
+  
+  
+  
   #topsummary1----
   output$topsummary1 <- renderUI({
     tagList(
@@ -849,6 +885,7 @@ server <- function(input, output, session) {
   
   
   
+  #stats_daily_header ----
   output$stats_daily_header <- renderUI({
     req(input$process_summary2)
     proj <- projects[projects$project_id == input$process_summary2, ]
@@ -862,7 +899,7 @@ server <- function(input, output, session) {
   output$stats_daily <- DT::renderDataTable({
     req(input$process_summary2)
     proj <- projects[projects$project_id == input$process_summary2, ]
-    
+    print(proj)
     daily_data <- projects_daily_data[projects_daily_data$project_id == input$process_summary2, ]
     
     if (proj$images_estimated == 1){
