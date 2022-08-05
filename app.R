@@ -12,8 +12,8 @@ library(lubridate)
 #Avoid sci notation
 options(scipen=999)
 
-app_name <- "Mass Digitization Dashboard"
-app_ver <- "1.5.8"
+app_name <- "Collections Digitization Dashboard"
+app_ver <- "1.6.0"
 github_link <- "https://github.com/Smithsonian/DPOMD_dashboard/"
 
 
@@ -30,7 +30,9 @@ ui <- fluidPage(
   tags$head(
     tags$title(app_name)
   ),
-  HTML("<div class=\"alert alert-warning\" role=\"alert\">Most Smithsonian staff is <a href=\"https://dpo.si.edu/blog/work-safe-initiative-covid-19-and-future\" target=\"_blank\">teleworking as part of the efforts to contain the spread of COVID-19</a>. Some of our digitization projects are on hold and some have restarted.<br>We are also using new approaches to digitize other sources of data from the collections. <a href=\"https://dpo.si.edu/index.php/blog/mass-digitization-paleobiology-locality-ledgers-and-transcription\" target=\"_blank\">Read a recent blog post on one such project here</a>.</div>"),
+  HTML("<div class=\"alert alert-warning\" role=\"alert\">
+      We are developing a new version of the dashboard to display better reports of our projects. 
+      </div>"),
   fluidRow(
     column(width = 9,
            HTML(paste0("<h1><a href=\"http://dpo.si.edu\" target = _blank><img src=\"DPO_logo_76.png\" alt=\"DPO Logo\" title=\"DPO Logo\"></a> | ", app_name, "</h1>"))
@@ -691,8 +693,8 @@ server <- function(input, output, session) {
       escape = FALSE,
       options = list(
         searching = FALSE,
-        ordering = TRUE, 
-        paging = TRUE,
+        ordering = FALSE, 
+        paging = FALSE,
         pageLength = dim(projects_list_tbl)[1],
         dom = 't',
         #Pull these cols to the right

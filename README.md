@@ -1,6 +1,6 @@
-# DPOMD Dashboard
+# DPO Collections Digitization Dashboard
 
-Dashboard to display general and detailed statistics of digitization projects by DPO Mass Digitization, OCIO, Smithsonian (https://dpo.si.edu/mass-digitization-program).
+Dashboard to display general and detailed statistics of digitization projects by the Collections Digitization program of DPO, OCIO, Smithsonian (https://dpo.si.edu/mass-digitization-program).
 
 Live version of the Mass Digi Dashboard: https://shiny.si.edu/massdigi/
 
@@ -34,3 +34,7 @@ The dashboard displays four tabs:
 
 ![stats](https://user-images.githubusercontent.com/2302171/81701802-7cbc0e00-9438-11ea-949d-276e82a60c6a.png)
 
+
+## Versions
+
+* 1.6.0 - Renaming to `Collections Digitization` and adding tabs for the three main areas: Mass Digi, Imaging Services, and Informatics
